@@ -1,0 +1,25 @@
+.noscript{
+	width: 100%;
+	height: 100%;
+}
+.noscript > div{
+	width: 100%;
+	height: 100%;
+
+	padding: 4em 2em;
+
+	background-color: #424242;
+
+	color: #FAFAFA;
+	font-family: 'Roboto', sans-serif;
+}
+.noscript > div > span{
+	display: flex;
+	justify-content: center;
+
+	letter-spacing: 0.06em;
+	line-height: 1.4em;
+	/*white-space: pre-line;*/
+	text-align: center;
+	/*text-justify: inter-word;*/
+}

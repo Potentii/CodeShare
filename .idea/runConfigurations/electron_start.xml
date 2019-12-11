@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="electron-start" type="js.build_tools.npm" folderName="ELECTRON">
+    <package-json value="$PROJECT_DIR$/packages/electron/package.json" />
+    <command value="run" />
+    <scripts>
+      <script value="start" />
+    </scripts>
+    <node-interpreter value="project" />
+    <envs>
+      <env name="NODE_ENV" value="development" />
+    </envs>
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" />
+    </method>
+  </configuration>
+</component>

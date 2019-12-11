@@ -1,0 +1,31 @@
+{
+	"name": "@code-share/main",
+	"version": "1.0.0",
+	"description": "",
+	"private": true,
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"prepares": "yarn install && npx lerna bootstrap",
+		"bootstrap": "npx lerna bootstrap",
+		"test": "npx lerna run --stream --parallel test",
+		"start": "npx lerna run --stream --parallel start",
+		"build": "npx lerna run --parallel --scope @gymifie/front build"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Potentii/CodeShare.git"
+	},
+	"bugs": {
+		"url": "https://github.com/Potentii/CodeShare/issues"
+	},
+	"homepage": "https://github.com/Potentii/CodeShare",
+	"engines": {
+		"node": "11.14.0"
+	},
+	"type": "module",
+	"devDependencies": {
+		"lerna": "3.18.3"
+	}
+}
