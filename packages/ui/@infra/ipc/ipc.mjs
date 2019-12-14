@@ -3,10 +3,8 @@ import TimeoutError from './timeout-error';
 
 
 let ipc_renderer = null;
-if(typeof electronRequire === 'function' && !!window.IS_TOTEM){
-	const electron = electronRequire('electron');
-	ipc_renderer = electron.ipcRenderer;
-}
+const electron = electronRequire('electron');
+ipc_renderer = electron.ipcRenderer;
 
 
 
@@ -73,7 +71,8 @@ export default class IPCClient{
 			// *Sending the IPC request:
 			ipc_renderer.send(channel, data);
 
-			console.log(`IPC request sent to "${channel}"`);
+			if(process.env.NODE_ENV !== 'production')
+				console.log(`IPC request sent to "${channel}"`, data);
 		});
 	}
 }

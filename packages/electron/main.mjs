@@ -36,7 +36,7 @@ let win = null;
  */
 const settings = {
 	window: {
-		title: 'Gymifie',
+		title: 'Code Share',
 		minWidth:  process.env.WINDOW_MIN_WIDTH  || 450,
 		minHeight: process.env.WINDOW_MIN_HEIGHT || 450,
 		width:  process.env.WINDOW_WIDTH  || 860,
@@ -44,10 +44,10 @@ const settings = {
 		webPreferences: {
 			nodeIntegration: true,
 		},
-		alwaysOnTop: true,
-		fullscreen: true,
+		// alwaysOnTop: true,
+		// fullscreen: true,
 		// closable: false,
-		kiosk: true,
+		// kiosk: true,
 		center: true,
 		backgroundColor: '#212121',
 	},
@@ -72,8 +72,8 @@ app.on('ready', async () => {
 });
 
 
-app.on('will-quit', e => {
-	ipc.unsetup();
+app.on('will-quit', async e => {
+	await ipc.unsetup();
 	shortcuts.unsetup();
 });
 
@@ -129,5 +129,5 @@ async function createWindow(settings){
 
 	shortcuts.setup(win);
 
-	ipc.setup();
+	await ipc.setup();
 }

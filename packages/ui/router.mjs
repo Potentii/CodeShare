@@ -14,7 +14,7 @@ Vue.use(VueRouter);
 
 // *Building the router:
 const router = new VueRouter({
-   mode: /^file/i.test(location.origin) ? 'abstract' : 'history',
+   mode: 'hash',
 
    routes: [
       {

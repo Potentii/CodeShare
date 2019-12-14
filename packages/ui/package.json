@@ -3,9 +3,9 @@
 	"version": "1.0.0",
 	"description": "The main frontend app",
 	"scripts": {
-		"serve": "parcel index.html --out-dir ./@build/output/serve/bundle --target browser --cache-dir ./@build/output/serve/cache --port 1234 --no-autoinstall --public-url /",
-		"watch": "parcel watch index.html --out-dir ./@build/output/watch/bundle --target browser --cache-dir ./@build/output/watch/cache --no-autoinstall --public-url /",
-		"build": "parcel build index.html --out-dir ./@build/output/build/bundle --target browser --no-source-maps --no-cache --public-url /"
+		"serve": "parcel index.html --out-dir ./@build/output/serve/bundle --target browser --cache-dir ./@build/output/serve/cache --port 1234 --no-autoinstall --public-url ./",
+		"watch": "parcel watch index.html --out-dir ./@build/output/watch/bundle --target browser --cache-dir ./@build/output/watch/cache --no-autoinstall --public-url ./",
+		"build": "parcel build index.html --out-dir ./@build/output/build/bundle --out-file index.html --target browser --no-source-maps --no-cache --no-minify --public-url ./"
 	},
 	"engines": {
 		"node": "11.14.0"

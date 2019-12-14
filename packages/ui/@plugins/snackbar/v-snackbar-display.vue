@@ -11,16 +11,16 @@
                </div>
 
                <div class="-actions">
-                  <v-gymifie-icon-button
-                     class="-action"
-                     :key="btn.id"
-                     :icon="btn.icon"
-                     :text="btn.label"
-                     :title="btn.alt"
-                     type="button"
-                     @click="button_onClick(snack, btn)"
-                     v-for="btn in snack.buttons">
-                  </v-gymifie-icon-button>
+<!--                  <v-gymifie-icon-button-->
+<!--                     class="-action"-->
+<!--                     :key="btn.id"-->
+<!--                     :icon="btn.icon"-->
+<!--                     :text="btn.label"-->
+<!--                     :title="btn.alt"-->
+<!--                     type="button"-->
+<!--                     @click="button_onClick(snack, btn)"-->
+<!--                     v-for="btn in snack.buttons">-->
+<!--                  </v-gymifie-icon-button>-->
                </div>
             </li>
          </transition-group>
@@ -32,7 +32,6 @@
 
 <script>
 import snack_events       from './snack-events';
-import VGymifieIconButton from '../../@components/v-gymifie-icon-button';
 import Snack              from './snack';
 
 
@@ -40,9 +39,6 @@ import Snack              from './snack';
 export default{
 
    name:'v-snackbar-display',
-
-
-	components: { VGymifieIconButton },
 
 
 	data(){
