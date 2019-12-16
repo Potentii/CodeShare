@@ -9,7 +9,7 @@
 					<span class="-email">{{ commit.author.email }}</span>
 					<span class="-name">{{ commit.author.name }}</span>
 				</span>
-				<span class="-date">{{ commit.author.date }}</span>
+				<span class="-date">{{ commit.author.date.toDateString() }}</span>
 			</li>
 		</ul>
 
@@ -19,12 +19,21 @@
 
 
 <script>
-import Git from './@infra/git';
+import Git     from '../@infra/git';
+import Project from '@code-share/electron/project/project';
 
 
 
 export default {
 	name: 'v-log-panel',
+
+
+	props: {
+		project: {
+			type: Project,
+			required: true,
+		}
+	},
 
 
 	data(){
@@ -38,14 +47,19 @@ export default {
 
 
 	async mounted(){
-		this.commits = await new Git('D:\\Github\\FakeRepo').log();
-		console.log(await new Git('D:\\Github\\FakeRepo').init());
-		console.log(this.commits);
+		await this.loadCommits(this.project);
 	},
 
 
 	methods: {
-
+		/**
+		 *
+		 * @param {Project} project
+		 * @returns {Promise<void>}
+		 */
+		async loadCommits(project){
+			this.commits = await new Git(project.location).log();
+		}
 	},
 }
 </script>

@@ -19,4 +19,8 @@ export default class CommitPerson{
 		return `${this.name} <${this.email}>`
 	}
 
+	formatDateForCommit(){
+		return this.date.toISOString().replace(/\.\d{3}Z$/i, '')
+	}
+
 }

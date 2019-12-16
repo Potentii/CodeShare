@@ -6,6 +6,7 @@ import AppSection from './v-app-section'
 
 // *Getting the app's pages:
 import HomePage from './v-home-page'
+import ProjectView from './project/v-project-view'
 
 
 
@@ -21,7 +22,13 @@ const router = new VueRouter({
          path: '/',
          component: AppSection,
          children: [
-         	{ name: 'home', path: '/', component: HomePage },
+         	{
+					path: '/',
+					component: HomePage,
+					children: [
+						{ name: 'project', path: '/projects/:_project', component: ProjectView }
+					]
+				},
 			]
       }
    ]

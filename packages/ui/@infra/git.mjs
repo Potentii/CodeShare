@@ -1,10 +1,2 @@
-const GitClass = electronRequire('electron').remote.getGlobal('GitClass');
-
-/**
- *
- * @param {String} dir
- * @returns {Git}
- */
-export default function Git(dir){
-	return new GitClass(dir);
-}
+const Git = electronRequire('electron').remote.getGlobal('Git');
+export default Git;

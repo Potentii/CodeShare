@@ -12,12 +12,28 @@ export default new Vuex.Store({
 
    state: {
 
+		/**
+		 * @type {Project[]}
+		 */
+		projects: [],
+
+		/**
+		 * @type {Project|null}
+		 */
+   	selected_project: null,
+
    },
 
 
 
    mutations: {
+		setProjects(state, projects){
+			state.projects = projects;
+		},
 
+		setSelectedProject(state, project){
+			state.selected_project = project;
+		}
    },
 
 

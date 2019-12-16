@@ -20,6 +20,16 @@ export default class Git{
 	}
 
 
+	async version(){
+		const data = await StreamUtils.readTilEnd(
+			this._git_root.run('git --version', [])
+		);
+
+		let match = /git version (?<version>.*)/i.exec(data);
+		return match ? match.groups.version : null;
+	}
+
+
 	/**
 	 * Performs a 'git init'
 	 * @returns {Promise<Repository|null>}
@@ -45,7 +55,7 @@ export default class Git{
 	 */
 	async add(globs){
 		const data = await StreamUtils.readTilEnd(
-			this._git_root.run('git add --verbose', [ String(globs) ])
+			this._git_root.run('git add --verbose', [ '--', String(globs) ])
 		);
 
 		let match;
@@ -81,15 +91,17 @@ export default class Git{
 	}
 
 
+	async resetInitialCommit(){
+		const data = await StreamUtils.readTilEnd(
+			this._git_root.run('git update-ref -d HEAD', [])
+		);
+	}
+
+
 	async resetSoftToCommit(commit_hash){
 		const data = await StreamUtils.readTilEnd(
 			this._git_root.run('git reset', [ '--soft', commit_hash ])
 		);
-
-		// let match;
-		// if((match = /fatal: ambiguous argument '(?<glob_err>.*)'/i.exec(data)) !== null)
-		// 	throw new Error(`Cannot reset files: Glob did not match any file "${match.groups.glob_err}"`);
-
 	}
 
 
@@ -103,14 +115,13 @@ export default class Git{
 	 * @param {CommitPerson} author
 	 * @param {CommitPerson} committer
 	 * @param {String} message
-	 * @returns {Promise<String>}
+	 * @param {Object} [options]
+	 * @returns {Promise<void>}
 	 */
-	async commit(author, committer, message){
+	async commit(author, committer, message, options = { dry_run: false }){
 		const data = await StreamUtils.readTilEnd(
-			this._git_root.run('git commit', [ `--message="${message}"`, `--author="${author.formatForCommit()}"`, `--cleanup=verbatim`, `--dry-run`])
+			this._git_root.run('git commit', [ '--no-status', `--message=${message}`, `--author=${author.formatForCommit()}`, `--date=${author.formatDateForCommit()}`, `--cleanup=verbatim`, options.dry_run ? `--dry-run` : '' ])
 		);
-
-		return data;
 	}
 
 

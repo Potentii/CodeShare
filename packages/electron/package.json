@@ -12,6 +12,7 @@
 	"type": "module",
 	"dependencies": {
 		"@babel/runtime": "7.2.0",
+		"@potentii/app-data": "1.0.1",
 		"dotenv": "8.0.0",
 		"electron": "7.1.4",
 		"electron-context-menu": "0.15.1",

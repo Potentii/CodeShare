@@ -1,10 +1,8 @@
 import TimeoutError from './timeout-error';
 
 
-
-let ipc_renderer = null;
 const electron = electronRequire('electron');
-ipc_renderer = electron.ipcRenderer;
+const ipc_renderer = electron.ipcRenderer;
 
 
 
@@ -32,40 +30,56 @@ export default class IPCClient{
 			 * @type {Number}
 			 */
 			let timer_id;
+			let resolved = false;
 
 			// *Declaring the error response callback handler:
 			var onSuccess = (e, data) => {
+				if(resolved)
+					return;
 				if(timer_id)
 					clearTimeout(timer_id);
 				ipc_renderer.removeListener(channel + '@success', onSuccess);
 				ipc_renderer.removeListener(channel + '@error',   onError);
 				ipc_renderer.removeListener('error',              onError);
-				reject(data);
+				resolved = true;
+				resolve(data);
+
+				// if(process.env.NODE_ENV !== 'production')
+				// 	console.log(`Success IPC response to "${channel}"`, data);
 			};
 
 			// *Declaring the response callback handler:
 			var onError = (e, err) => {
+				if(resolved)
+					return;
 				if(timer_id)
 					clearTimeout(timer_id);
 				ipc_renderer.removeListener(channel + '@success', onSuccess);
 				ipc_renderer.removeListener(channel + '@error',   onError);
 				ipc_renderer.removeListener('error',              onError);
-				resolve(err);
+				resolved = true;
+				reject(err);
+
+				// if(process.env.NODE_ENV !== 'production')
+				// 	console.error(`Error IPC response to "${channel}"`, err);
 			};
 
 			// *Setting the timeout functionality, if a time was specified:
 			if(timeout !== 0){
 				timer_id = setTimeout(() => {
+					if(resolved)
+						return;
 					ipc_renderer.removeListener(channel + '@success', onSuccess);
 					ipc_renderer.removeListener(channel + '@error',   onError);
 					ipc_renderer.removeListener('error',              onError);
+					resolved = true;
 					reject(new TimeoutError(`Timeout of ${timeout}ms reached`));
 				}, timeout);
 			}
 
 			// *Listening for response or errors:
-			ipc_renderer.once(channel + '@success', onError);
-			ipc_renderer.once(channel + '@error',   onSuccess);
+			ipc_renderer.once(channel + '@success', onSuccess);
+			ipc_renderer.once(channel + '@error',   onError);
 			ipc_renderer.once('error',              onError);
 
 			// *Sending the IPC request:

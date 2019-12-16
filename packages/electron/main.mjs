@@ -4,6 +4,7 @@ import dotenv         from 'dotenv'
 import electron       from 'electron'
 import * as shortcuts from './shortcuts'
 import * as ipc       from './ipc'
+import * as globals   from './globals'
 
 
 // console.log(electron);
@@ -74,6 +75,7 @@ app.on('ready', async () => {
 
 app.on('will-quit', async e => {
 	await ipc.unsetup();
+	await globals.unsetup();
 	shortcuts.unsetup();
 });
 
@@ -130,4 +132,5 @@ async function createWindow(settings){
 	shortcuts.setup(win);
 
 	await ipc.setup();
+	await globals.setup();
 }

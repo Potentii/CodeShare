@@ -13,7 +13,9 @@
 
 <script>
 export default {
+
    name: 'v-app-section',
+
 }
 </script>
 
@@ -30,11 +32,18 @@ export default {
 	width: 100%;
 	max-width: 100%;
 
-	background-color: var(--blank-bg--base);
-	background-image: url('@resources/images/noise.png');
+	/*background-color: var(--blank-bg--base);*/
+	background-image:
+		linear-gradient(
+			to bottom,
+			var(--blank-bg--1),
+			var(--blank-bg--2)
+		),
+		url('@resources/images/noise.png')
+	;
 	background-blend-mode: overlay;
 	background-repeat: repeat;
-	background-size: 66px;
+	background-size: 48px;
 
 	overflow: auto;
 }

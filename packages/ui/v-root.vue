@@ -72,33 +72,26 @@ export default {
     * Theme colors
     */
    /* Blank */
-   --blank-bg--base: var(--m-grey-800);
-   --blank-bg--1: var(--m-grey-700);
-   --blank-bg--2: var(--m-grey-800);
-   --blank-fg--base: var(--m-grey-50);
-   --blank-ic--base: var(--m-grey-200);
-
-   /* Primary */
-   --primary-bg--base: var(--m-grey-200);
-   --primary-bg--1: var(--m-grey-200);
-   --primary-bg--2: var(--m-grey-200);
-   --primary-fg--base: var(--m-grey-900);
-   --primary-ic--base: var(--m-grey-800);
+   --blank-bg--base: var(--m-grey-100);
+   --blank-bg--1: #FFFFFF;
+   --blank-bg--2: var(--m-grey-300);
+   --blank-fg--base: var(--m-grey-900);
+   --blank-ic--base: var(--m-grey-700);
 
    /* Accent */
-   --accent-bg--base: var(--m-green-a700);
-   --accent-bg--1: var(--m-green-a700);
-   --accent-bg--2: var(--m-green-a700);
+   --accent-bg--base: var(--m-green-a400);
+   --accent-bg--1: var(--m-green-a400);
+   --accent-bg--2: var(--m-green-a400);
    --accent-fg--base: var(--m-grey-50);
    --accent-ic--base: var(--m-grey-200);
 
    /* Links */
-   --link-fg: var(--m-blue-700);
-   --link-fg--visited: var(--m-blue-700);
+   --link-fg: var(--m-green-a400);
+   --link-fg--visited: var(--m-green-a400);
 
    /* Text selection */
-   --selection-bg: var(--m-grey-800);
-   --selection-fg: var(--m-grey-100);
+   --selection-bg: var(--accent-bg--base);
+   --selection-fg: var(--accent-fg--base);
 
 
 

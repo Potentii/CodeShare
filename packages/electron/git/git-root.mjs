@@ -26,7 +26,7 @@ export default class GitRoot{
 		command = command.replace(/^\s*git\s+/i, '');
 		args.push(...command.split(/\s+/)); // TODO ignore spaces between quotes
 		if(Array.isArray(params))
-			args.push(...params);
+			args.push(...params.filter(p => !!p));
 
 		if(process.env.NODE_ENV !== 'production')
 			console.log(`>> RUNNING: $ git ${args.join(' ')}`);
