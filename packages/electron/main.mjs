@@ -2,7 +2,8 @@ import url            from 'url'
 import path           from 'path'
 import dotenv         from 'dotenv'
 import electron       from 'electron'
-import * as shortcuts from './shortcuts'
+import electron_debug from 'electron-debug'
+// import * as shortcuts from './shortcuts'
 import * as ipc       from './ipc'
 import * as globals   from './globals'
 
@@ -22,6 +23,8 @@ if(process.env.LOADED !== 'YES')
 	throw new Error(`'.env' file could not be loaded properly`);
 
 
+electron_debug();
+
 
 /**
  * The main window frame
@@ -38,10 +41,10 @@ let win = null;
 const settings = {
 	window: {
 		title: 'Code Share',
-		minWidth:  process.env.WINDOW_MIN_WIDTH  || 450,
-		minHeight: process.env.WINDOW_MIN_HEIGHT || 450,
-		width:  process.env.WINDOW_WIDTH  || 860,
-		height: process.env.WINDOW_HEIGHT || 600,
+		minWidth:  process.env.WINDOW_MIN_WIDTH  || 50,
+		minHeight: process.env.WINDOW_MIN_HEIGHT || 50,
+		width:  process.env.WINDOW_WIDTH  || 1024,
+		height: process.env.WINDOW_HEIGHT || 640,
 		webPreferences: {
 			nodeIntegration: true,
 		},
@@ -50,7 +53,7 @@ const settings = {
 		// closable: false,
 		// kiosk: true,
 		center: true,
-		backgroundColor: '#212121',
+		backgroundColor: '#FFFFFF',
 	},
 	// *Checking if the address of the window content is HTTP(S):
 	address: /^http/i.test(process.env.PAGE_ADDRESS)
@@ -76,7 +79,7 @@ app.on('ready', async () => {
 app.on('will-quit', async e => {
 	await ipc.unsetup();
 	await globals.unsetup();
-	shortcuts.unsetup();
+	// shortcuts.unsetup();
 });
 
 
@@ -109,6 +112,10 @@ async function createWindow(settings){
 	const window_settings = settings.window;
 	window_settings.show = false;
 
+	await app.whenReady();
+
+	electron.Menu.setApplicationMenu(null);
+
 	// *Setting up the window frame:
 	win = new BrowserWindow(window_settings);
 
@@ -129,7 +136,7 @@ async function createWindow(settings){
 	// *Removing the default menu bar:
 	win.setMenu(null);
 
-	shortcuts.setup(win);
+	// shortcuts.setup(win);
 
 	await ipc.setup();
 	await globals.setup();

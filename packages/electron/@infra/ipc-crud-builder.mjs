@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron';
 import RootUtils   from './root-utils';
 import Store       from './store';
+import { onAsync } from './ipc-async-route';
 
 
 
@@ -82,12 +83,12 @@ export default class IPCCRUDBuilder{
 
 
 
-function onAsync(channel, async_fn){
-	ipcMain.on(channel, async (e, params) => {
-		try{
-			e.sender.send(`${channel}@success`, await async_fn.call(this, params));
-		} catch(err){
-			e.sender.send(`${channel}@error`, err);
-		}
-	});
-}
+// function onAsync(channel, async_fn){
+// 	ipcMain.on(channel, async (e, params) => {
+// 		try{
+// 			e.sender.send(`${channel}@success`, await async_fn.call(this, params));
+// 		} catch(err){
+// 			e.sender.send(`${channel}@error`, err);
+// 		}
+// 	});
+// }

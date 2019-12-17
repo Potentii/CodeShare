@@ -3,12 +3,12 @@
 		<nav class="-projects">
 			<router-link
 				class="-project"
-				:class="{ '--selected': selected_project && selected_project.id == project.id }"
-				:to="{ name: 'project', params: { _project: project.id } }"
-				:key="project.id"
-				v-for="project in projects"
+				:class="{ '--selected': selected_project_vo && selected_project_vo.id == project_vo.id }"
+				:to="{ name: 'project', params: { _project: project_vo.id } }"
+				:key="project_vo.id"
+				v-for="project_vo in project_vos"
 				tag="button">
-				{{ project.name }}
+				{{ project_vo.project.name }}
 			</router-link>
 		</nav>
 
@@ -22,9 +22,11 @@
 
 
 <script>
-import ProjectRoot      from './project/project-root';
+import ProjectRoot                from './project/project-root';
 import Project                    from '@code-share/electron/project/project';
 import { mapMutations, mapState } from 'vuex';
+import ProjectDetails             from '@code-share/electron/project/project-details';
+import ProjectVO                  from './project/project-vo';
 
 
 
@@ -41,18 +43,18 @@ export default {
 
 	computed: {
 
-		...mapState([ 'projects', 'selected_project' ]),
+		...mapState([ 'project_vos', 'selected_project_vo' ]),
 
 		/**
 		 * @type {Project|null}
 		 */
 		internal_selected_project(){
-			if(!this.projects.length)
+			if(!this.project_vos.length)
 				return null;
 			const _project = this.$route.params._project;
 			if(!_project)
-				return this.projects[0];
-			return this.projects.find(p => p.id == _project) || null;
+				return this.project_vos[0];
+			return this.project_vos.find(p => p.id == _project) || null;
 		}
 
 	},
@@ -60,7 +62,7 @@ export default {
 
 	watch: {
 		internal_selected_project(v){
-			this.setSelectedProject(v);
+			this.setSelectedProjectVO(v);
 
 			if(!this.$route.name && !!v)
 				this.$router.push({ name: 'project', params: { _project: v._id } });
@@ -69,24 +71,28 @@ export default {
 
 
 	async mounted(){
+		// TODO remove it: --------------------------------
 		await ProjectRoot.getInstance().delete({ _id: 'yyyy' });
-		await ProjectRoot.getInstance().add(new Project('yyyy', 'Fake Repo', 'D:\\Github\\FakeRepo'));
 		await ProjectRoot.getInstance().delete({ _id: 'yyyy2' });
-		await ProjectRoot.getInstance().add(new Project('yyyy2', 'Fake Repo 2', 'D:\\Github\\FakeRepo'));
 		await ProjectRoot.getInstance().delete({ _id: 'yyyy3' });
-		await ProjectRoot.getInstance().add(new Project('yyyy3', 'Fake Repo 3', 'D:\\Github\\FakeRepo'));
+		await ProjectRoot.getInstance().add(new Project('yyyy', 'Fake Repo', new ProjectDetails('D:\\Github\\FakeRepo', null, null)));
+		await ProjectRoot.getInstance().add(new Project('yyyy2', 'Fake Repo 2', new ProjectDetails('D:\\Github\\FakeRepo', null, null)));
+		await ProjectRoot.getInstance().add(new Project('yyyy3', 'Fake Repo 3', new ProjectDetails('D:\\Github\\FakeRepo', null, null)));
+		// ------------------------------------------------
 
-		await this.loadProjects();
+		await this.loadProjectVOs();
 	},
 
 
 	methods: {
 
-		...mapMutations([ 'setProjects', 'setSelectedProject' ]),
+		...mapMutations([ 'setProjectVOs', 'setSelectedProjectVO' ]),
 
 
-		async loadProjects(){
-			this.setProjects(await ProjectRoot.getInstance().getAll());
+		async loadProjectVOs(){
+			const all_projects = (await ProjectRoot.getInstance().getAll())
+				.map(p => new ProjectVO(p, null, null));
+			this.setProjectVOs(all_projects);
 		},
 
 
@@ -118,14 +124,20 @@ export default {
 	/*margin-bottom: 1em;*/
 }
 .v-home-page > .-projects > .-project{
+	cursor: default;
+	flex: 0 0 9em;
 	opacity: 0.4;
-	display: flex;
+	display: inline-block;
 	align-items: center;
 	justify-content: center;
 	padding: 0.8em 1em;
 	font-size: 14px;
 	font-family: 'Roboto', sans-serif;
 	letter-spacing: 0.03em;
+
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
 
 	transition: background-color, opacity, 0.2s ease;
 }
@@ -160,7 +172,7 @@ export default {
 }
 .v-home-page > .-projects > .-project:hover::after{
 	opacity: 1;
-	transform: scaleX(1);
+	/*transform: scaleX(1);*/
 }
 
 

@@ -5,6 +5,7 @@ import CommitPerson from './commit-person';
 import StreamUtils  from '../@infra/stream-utils';
 import Repository   from './repository';
 import GitRemote    from './git-remote';
+import GitReference from './git-reference';
 
 
 
@@ -159,6 +160,117 @@ export default class Git{
 		return commits;
 	}
 
+
+	/**
+	 *
+	 * @returns {Promise<GitReference[]>} The found references
+	 */
+	async getReferences(){
+		const data = await StreamUtils.readTilEnd(
+			this._git_root.run('git show-ref', [ '--head', '--heads', '--tags' ])
+		);
+
+		const regex = /(?<hash>.*?)\s+(?<ref_name>.+?)([\n\r]|$)/g;
+		let match;
+		const refs = [];
+		while((match = regex.exec(data)) !== null)
+			refs.push(new GitReference(match.groups.ref_name, match.groups.hash));
+
+		return refs;
+	}
+
+
+	/**
+	 *
+	 * @returns {Promise<GitReference|null>}
+	 */
+	async getHEADReference(){
+		return (await this.getReferences()).find(r => r.name === 'HEAD');
+	}
+
+
+
+
+	async getWorkingTreeReport(){
+		const data = await StreamUtils.readTilEnd(
+			this._git_root.run('git status', [ '-vv' ])
+		);
+		let match;
+
+		let branch;
+		const untracked = [];
+		const unstaged = [];
+		const staged = [];
+
+		const regex = /(?<X>.)(?<Y>.)\s(?<object>.+?)[\n\r]/is;
+		while((match = regex.exec(data)) !== null){
+			const X = match.groups.X;
+			const Y = match.groups.Y;
+			const object = match.groups.object;
+
+			if(X=='#'&&Y=='#')
+				branch = object;
+			else if(X=='?'&&Y=='?')
+				untracked.push(object);
+
+		}
+/*
+		## master
+		M README.md
+		A  test.txt
+		A  test2.txt
+		?? .idea/.gitignore
+		?? .idea/FakeRepo.iml
+		?? .idea/misc.xml
+		?? .idea/modules.xml
+		?? .idea/vcs.xml
+		?? test3.txt
+*/
+
+		// const branch_regex = /On branch (?<branch>.+?)[\n\r]/is;
+		// const branch = ((match = branch_regex.exec(data)) !== null) ? match.groups.branch : null;
+
+		// const staged_files_index_regex = /Changes to be committed:[\n\r]\s+\((use "git restore --staged <file>\.\.\." to unstage)\)[\n\r]/i;
+		// const staged_files_regex = /\s{2}(?<type>.+?):\s{3}(?<file>.+?)[\n\r]/gi;
+		// staged_files_regex.lastIndex = staged_files_index_regex.exec(data).index;
+		//
+		// const staged_files = [];
+		// while((match = staged_files_regex.exec(data)) !== null)
+		// 	staged_files.push({
+		// 		type: match.groups.type,
+		// 		file: match.groups.file,
+		// 	});
+		//
+		//
+		// const unstaged_files_index_regex = /Changes not staged for commit:[\n\r]\s+\(.+?\)[\n\r]\s+\(.+?\)[\n\r]/i;
+		// const unstaged_files_regex = /\s+?(?<type>.+?):\s(?<file>.+?)/gi;
+		// unstaged_files_regex.lastIndex = unstaged_files_index_regex.exec(data).index
+		//
+		// const unstaged_files = [];
+		// while((match = unstaged_files_regex.exec(data)) !== null)
+		// 	unstaged_files.push({
+		// 		type: match.groups.type,
+		// 		file: match.groups.file,
+		// 	});
+		//
+		//
+		// const untracked_files_index_regex = /Untracked files:[\n\r]\s+\(.+?\)[\n\r]/i;
+		// const untracked_files_regex = /\s{3}(?<file>.+?)/gi;
+		// untracked_files_regex.lastIndex = untracked_files_index_regex.exec(data).index;
+		//
+		// const untracked_files = [];
+		// while((match = untracked_files_regex.exec(data)) !== null)
+		// 	untracked_files.push({
+		// 		type: match.groups.type,
+		// 		file: match.groups.file,
+		// 	});
+
+		return {
+			// staged_files,
+			// unstaged_files,
+			// untracked_files
+		};
+	}
 
 
 	get remote(){

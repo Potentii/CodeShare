@@ -1,9 +1,13 @@
+import ProjectDetails    from './project-details';
+
+
+
 export default class Project{
 
-	constructor(_id, name, location){
+	constructor(_id, name, details){
 		this._id = _id;
 		this.name = name;
-		this.location = location;
+		this.details = details;
 	}
 
 
@@ -11,7 +15,7 @@ export default class Project{
 		return new Project(
 			obj._id,
 			obj.name,
-			obj.location,
+			obj.details ? ProjectDetails.from(obj.details) : null,
 		);
 	}
 

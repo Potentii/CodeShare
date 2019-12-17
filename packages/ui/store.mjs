@@ -1,5 +1,6 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue       from 'vue'
+import Vuex      from 'vuex'
+import ProjectVO from './project/project-vo';
 
 // *Getting the stores from each context:
 
@@ -13,28 +14,40 @@ export default new Vuex.Store({
    state: {
 
 		/**
-		 * @type {Project[]}
+		 * @type {ProjectVO[]}
 		 */
-		projects: [],
+		project_vos: [],
 
 		/**
-		 * @type {Project|null}
+		 * @type {ProjectVO|null}
 		 */
-   	selected_project: null,
+   	selected_project_vo: null,
 
    },
 
 
 
    mutations: {
-		setProjects(state, projects){
-			state.projects = projects;
+		setProjectVOs(state, projects){
+			if(!Array.isArray(projects))
+				projects = [];
+			if(!projects.every(p => p instanceof ProjectVO))
+				throw new TypeError(`Invalid project type`);
+			state.project_vos = projects;
 		},
 
-		setSelectedProject(state, project){
-			state.selected_project = project;
-		}
+		setSelectedProjectVO(state, project){
+			if(!(project instanceof ProjectVO))
+				throw new TypeError(`Invalid project type`);
+			state.selected_project_vo = project;
+		},
    },
+
+
+
+	actions: {
+
+	},
 
 
 

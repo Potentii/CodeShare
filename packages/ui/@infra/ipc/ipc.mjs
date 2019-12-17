@@ -60,8 +60,8 @@ export default class IPCClient{
 				resolved = true;
 				reject(err);
 
-				// if(process.env.NODE_ENV !== 'production')
-				// 	console.error(`Error IPC response to "${channel}"`, err);
+				if(process.env.NODE_ENV !== 'production')
+					console.error(`Error IPC response to "${channel}"`, err);
 			};
 
 			// *Setting the timeout functionality, if a time was specified:
