@@ -190,85 +190,47 @@ export default class Git{
 
 
 
-
 	async getWorkingTreeReport(){
 		const data = await StreamUtils.readTilEnd(
-			this._git_root.run('git status', [ '-vv' ])
+			this._git_root.run('git status', [ '--porcelain=v2', '--branch', '--untracked-files=all', '--renames', '--find-renames', ])
 		);
 		let match;
-
-		let branch;
 		const untracked = [];
-		const unstaged = [];
-		const staged = [];
+		const ignored = [];
+		const changes = [];
 
-		const regex = /(?<X>.)(?<Y>.)\s(?<object>.+?)[\n\r]/is;
-		while((match = regex.exec(data)) !== null){
-			const X = match.groups.X;
-			const Y = match.groups.Y;
-			const object = match.groups.object;
+		// @see https://git-scm.com/docs/git-status#_changed_tracked_entries
+		const ordinary_changes_regex    = /1 (?<X>.)(?<Y>.) (?<sub>.{4}) (?<mH>\d+) (?<mI>\d+) (?<mW>\d+) (?<hH>.+) (?<hI>.+) (?<path>.+)[\n\r]?/gi;
+		const rename_copy_changes_regex = /2 (?<X>.)(?<Y>.) (?<sub>.{4}) (?<mH>\d+) (?<mI>\d+) (?<mW>\d+) (?<hH>.+) (?<hI>.+) (?<x>.)(?<score>\d{1,3}) (?<path>.+)\t(?<origPath>.+?)[\n\r]?/gi;
+		const unmerged_changes_regex    = /u (?<X>.)(?<Y>.) (?<sub>.{4}) (?<m1>\d+) (?<m2>\d+) (?<m3>\d+) (?<mW>\d+) (?<h1>.+) (?<h2>.+) (?<h3>.+) (?<path>.+)[\n\r]?/gi;
+		const untracked_items_regex     = /\? (?<path>.+)[\n\r]?/gi;
+		const ignored_items_regex       = /! (?<path>.+)[\n\r]?/gi;
 
-			if(X=='#'&&Y=='#')
-				branch = object;
-			else if(X=='?'&&Y=='?')
-				untracked.push(object);
+		while((match = ordinary_changes_regex.exec(data)) !== null)
+			changes.push({
+				file: match.groups.path,
+				X:    match.groups.X,
+				Y:    match.groups.Y,
+			});
 
-		}
-/*
-		## master
-		M README.md
-		A  test.txt
-		A  test2.txt
-		?? .idea/.gitignore
-		?? .idea/FakeRepo.iml
-		?? .idea/misc.xml
-		?? .idea/modules.xml
-		?? .idea/vcs.xml
-		?? test3.txt
-*/
+		while((match = rename_copy_changes_regex.exec(data)) !== null)
+			changes.push({
+				file:          match.groups.path,
+				original_file: match.groups.origPath,
+				X:             match.groups.X,
+				Y:             match.groups.Y,
+			});
 
-		// const branch_regex = /On branch (?<branch>.+?)[\n\r]/is;
-		// const branch = ((match = branch_regex.exec(data)) !== null) ? match.groups.branch : null;
+		while((match = untracked_items_regex.exec(data)) !== null)
+			untracked.push(match.groups.path);
 
-		// const staged_files_index_regex = /Changes to be committed:[\n\r]\s+\((use "git restore --staged <file>\.\.\." to unstage)\)[\n\r]/i;
-		// const staged_files_regex = /\s{2}(?<type>.+?):\s{3}(?<file>.+?)[\n\r]/gi;
-		// staged_files_regex.lastIndex = staged_files_index_regex.exec(data).index;
-		//
-		// const staged_files = [];
-		// while((match = staged_files_regex.exec(data)) !== null)
-		// 	staged_files.push({
-		// 		type: match.groups.type,
-		// 		file: match.groups.file,
-		// 	});
-		//
-		//
-		// const unstaged_files_index_regex = /Changes not staged for commit:[\n\r]\s+\(.+?\)[\n\r]\s+\(.+?\)[\n\r]/i;
-		// const unstaged_files_regex = /\s+?(?<type>.+?):\s(?<file>.+?)/gi;
-		// unstaged_files_regex.lastIndex = unstaged_files_index_regex.exec(data).index
-		//
-		// const unstaged_files = [];
-		// while((match = unstaged_files_regex.exec(data)) !== null)
-		// 	unstaged_files.push({
-		// 		type: match.groups.type,
-		// 		file: match.groups.file,
-		// 	});
-		//
-		//
-		// const untracked_files_index_regex = /Untracked files:[\n\r]\s+\(.+?\)[\n\r]/i;
-		// const untracked_files_regex = /\s{3}(?<file>.+?)/gi;
-		// untracked_files_regex.lastIndex = untracked_files_index_regex.exec(data).index;
-		//
-		// const untracked_files = [];
-		// while((match = untracked_files_regex.exec(data)) !== null)
-		// 	untracked_files.push({
-		// 		type: match.groups.type,
-		// 		file: match.groups.file,
-		// 	});
+		while((match = ignored_items_regex.exec(data)) !== null)
+			ignored.push(match.groups.path);
 
 		return {
-			// staged_files,
-			// unstaged_files,
-			// untracked_files
+			changes,
+			untracked,
+			ignored,
 		};
 	}
 
