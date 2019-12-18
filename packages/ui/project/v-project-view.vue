@@ -1,7 +1,12 @@
 <template>
 	<div class="v-project-view">
 		<header class="-header" v-if="selected_project_vo">
-			<span class="-name">{{ selected_project_vo.project.name }}</span>
+
+			<div class="-name-area">
+				<span class="-name">{{ selected_project_vo.project.name }}</span>
+				<span class="-branch">/<span class="-branch-name">master</span></span>
+			</div>
+
 			<div class="-actions">
 
 				<button class="-action -create-new" title="Create new">
@@ -15,7 +20,10 @@
 			</div>
 		</header>
 
-		<v-log-panel class="-log-panel" v-if="selected_project_vo" :project_vo="selected_project_vo"></v-log-panel>
+		<div class="-content --thin-scroll">
+			<v-log-panel class="-log-panel" v-if="selected_project_vo" :project_vo="selected_project_vo"></v-log-panel>
+			<v-commit-diff-panel class="-diff-panel" v-if="selected_project_vo" :project_vo="selected_project_vo"></v-commit-diff-panel>
+		</div>
 
 	</div>
 </template>
@@ -23,8 +31,9 @@
 
 
 <script>
-import VLogPanel    from './v-log-panel';
-import { mapState } from 'vuex';
+import VLogPanel        from './v-log-panel';
+import { mapState }     from 'vuex';
+import VCommitDiffPanel from './v-commit-diff-panel';
 
 
 
@@ -32,7 +41,7 @@ export default {
 	name: 'v-project-view',
 
 
-	components: { VLogPanel },
+	components: { VCommitDiffPanel, VLogPanel },
 
 
 	props: {
@@ -76,18 +85,39 @@ export default {
 	grid-template-columns: auto 1fr auto;
 	grid-template-rows: auto;
 	grid-template-areas:
-		'name ... actions';
+		'name-area ... actions';
 }
-.v-project-view > .-header > .-name{
-	grid-area: name;
+.v-project-view > .-header > .-name-area{
+	grid-area: name-area;
 }
 .v-project-view > .-header > .-actions{
 	grid-area: actions;
 }
-.v-project-view > .-header > .-name{
+.v-project-view > .-header > .-name-area{
+	display: inline-flex;
+	align-items: baseline;
+}
+.v-project-view > .-header > .-name-area > .-name{
 	font-size: 22px;
 	font-family: 'Roboto Medium', sans-serif;
-	letter-spacing: 0.03em;
+	letter-spacing: 0.04em;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+}
+.v-project-view > .-header > .-name-area > .-branch{
+	opacity: 0.4;
+	display: inline-flex;
+	align-items: center;
+
+	margin-left: 1em;
+
+	font-family: 'Roboto Medium', sans-serif;
+	font-size: 18px;
+	font-style: italic;
+}
+.v-project-view > .-header > .-name-area > .-branch > .-branch-name{
+	margin-left: 0.2em;
+
+	font-size: 14px;
 }
 .v-project-view > .-header > .-actions{
 	display: flex;
@@ -110,7 +140,18 @@ export default {
 
 
 
-.v-project-view > .-log-panel{
-	margin-top: 1em;
+.v-project-view > .-content{
+	display: flex;
+	margin-top: 1.2em;
+}
+.v-project-view > .-content > .-log-panel + .-diff-panel{
+	margin-left: 2.5em;
+}
+.v-project-view > .-content > .-log-panel{
+	flex: 1 1 auto;
+}
+.v-project-view > .-content > .-diff-panel{
+	flex: 1 1 auto;
+	max-width: 50%;
 }
 </style>

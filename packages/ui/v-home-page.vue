@@ -143,6 +143,7 @@ export default {
 }
 .v-home-page > .-projects > .-project.--selected{
 	opacity: 1;
+	font-family: 'Roboto Medium', sans-serif;
 }
 .v-home-page > .-projects > .-project:hover{
 	opacity: 1;
