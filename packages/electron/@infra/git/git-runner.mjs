@@ -1,11 +1,12 @@
 import EventEmitter      from 'events'
 import { spawn }         from 'child_process'
-import EventEmitterUtils from '../@infra/event-emitter-utils';
+import EventEmitterUtils from '../event-emitter-utils';
 import path              from 'path';
+import StreamUtils       from '../stream-utils';
 
 
 
-export default class GitRoot{
+export default class GitRunner{
 
 	/**
 	 *
@@ -14,6 +15,13 @@ export default class GitRoot{
 	constructor(dir){
 		this._dir = path.join(dir);
 	}
+
+
+
+	async runTilEnd(command, params, options = { use_pager: false }){
+		return StreamUtils.readTilEnd(this.run(command, params, options));
+	}
+
 
 
 	run(command, params, options = { use_pager: false }){

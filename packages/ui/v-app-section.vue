@@ -16,6 +16,26 @@ export default {
 
    name: 'v-app-section',
 
+
+	beforeRouteEnter(to, from, next){
+   	if(!to.name)
+   		next({ name: 'projects' });
+		else
+   		next();
+	},
+
+
+	async beforeMount(){
+		// TODO remove it: --------------------------------
+		// await ProjectRoot.getInstance().delete({ _id: 'yyyy' });
+		// await ProjectRoot.getInstance().delete({ _id: 'yyyy2' });
+		// await ProjectRoot.getInstance().delete({ _id: 'yyyy3' });
+		// await ProjectRoot.getInstance().add(new Project('yyyy', 'Fake Repo', new ProjectDetails('D:\\Github\\FakeRepo', null, null)));
+		// await ProjectRoot.getInstance().add(new Project('yyyy2', 'Fake Repo 2', new ProjectDetails('D:\\Github\\FakeRepo', null, null)));
+		// await ProjectRoot.getInstance().add(new Project('yyyy3', 'Code Share', new ProjectDetails('C:\\Github\\Potentii\\CodeShare', null, null)));
+		// ------------------------------------------------
+	},
+
 }
 </script>
 
@@ -49,7 +69,7 @@ export default {
 }
 
 .v-app-section > .-main{
-	flex-grow: 1;
+	flex: 1 1 auto;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -57,13 +77,15 @@ export default {
 	min-width: 100%;
 	width: 100%;
 	max-width: 100%;
+	max-height: 100%;
 
-	overflow-y: auto;
-	overflow-x: hidden;
+	/*overflow-y: hidden;*/
+	/*overflow-x: hidden;*/
 }
 .v-app-section > .-main > .-route{
 	min-width: 100%;
 	width: 100%;
 	max-width: 100%;
+	max-height: 100%;
 }
 </style>

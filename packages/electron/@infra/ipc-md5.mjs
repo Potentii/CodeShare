@@ -1,5 +1,5 @@
 import crypto      from 'crypto'
-import { onAsync } from './ipc-async-route';
+import { onAsync } from './ipc/ipc-async-route';
 
 
 

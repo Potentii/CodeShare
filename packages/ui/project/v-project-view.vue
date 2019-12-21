@@ -18,6 +18,7 @@
 				</button>
 
 			</div>
+
 		</header>
 
 		<div class="-content --thin-scroll">
@@ -31,37 +32,49 @@
 
 
 <script>
-import VLogPanel        from './v-log-panel';
-import { mapState }     from 'vuex';
-import VCommitDiffPanel from './v-commit-diff-panel';
+import VLogPanel                  from './v-log-panel';
+import { mapMutations, mapState } from 'vuex';
+import VCommitDiffPanel           from './v-commit-diff-panel';
+import store                      from '../store';
 
 
 
 export default {
+
 	name: 'v-project-view',
 
 
 	components: { VCommitDiffPanel, VLogPanel },
 
 
-	props: {
-	},
-
-
 	computed: {
-		...mapState([ 'selected_project_vo' ]),
+		...mapState('project', [ 'project_vos', 'selected_project_vo' ]),
 	},
 
 
-	data(){
-		return {
-		};
+	beforeRouteEnter(to, from, next){
+		const route_project_id = to.params._project;
+		const projects = store.state.project.project_vos;
+
+		// *Checking if the user has projects, but haven't navigated to one of them:
+		if(!route_project_id && projects?.length)
+			next({ name: 'project', params: { _project: projects[0].id } });
+		else
+			next();
+	},
+
+
+	async beforeMount(){
+		const _project = this.$route.params._project;
+		const project = this.project_vos?.find(p => p.id == _project);
+		this.setSelectedProjectVO(project);
 	},
 
 
 	methods: {
-
+		...mapMutations('project', [ 'setSelectedProjectVO' ]),
 	},
+
 }
 </script>
 
@@ -73,8 +86,9 @@ export default {
 	flex-direction: column;
 	align-items: stretch;
 
-	padding: 1em var(--side-margins);
-	margin-top: 1em;
+	padding: 2em var(--side-margins) 5em var(--side-margins);
+
+	overflow-y: auto;
 }
 
 .v-project-view > .-header{

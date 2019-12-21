@@ -1,7 +1,4 @@
-import path        from "path";
-import GitRoot     from './git-root';
-import StreamUtils from '../@infra/stream-utils';
-import Remote      from './remote';
+import Remote from './remote';
 
 
 
@@ -9,10 +6,10 @@ export default class GitRemote{
 
 	/**
 	 *
-	 * @param {Git} git The git interface
+	 * @param {GitIPCClient} git_client The git interface
 	 */
-	constructor(git){
-		this._git = git;
+	constructor(git_client){
+		this.git_client = git_client;
 	}
 
 
@@ -24,9 +21,7 @@ export default class GitRemote{
 	 * @see https://git-scm.com/docs/git-remote#Documentation/git-remote.txt-emaddem
 	 */
 	async add(name, url){
-		const data = await StreamUtils.readTilEnd(
-			this._git._git_root.run('git remote add', [ name, url ])
-		);
+		const data = await this.git_client.run('git remote add', [ name, url ]);
 
 		if(data.includes(`fatal: remote`) && data.includes(`already exists.`))
 			throw new Error(`Cannot add remote: "${name}" remote is already defined`);
@@ -40,9 +35,7 @@ export default class GitRemote{
 	 * @see https://git-scm.com/docs/git-remote#Documentation/git-remote.txt-emremoveem
 	 */
 	async remove(name){
-		const data = await StreamUtils.readTilEnd(
-			this._git._git_root.run('git remote remove', [ name ])
-		);
+		const data = await this.git_client.run('git remote remove', [ name ]);
 
 		if(data.includes(`fatal: No such remote:`))
 			throw new Error(`Cannot remove remote: "${name}" remote is not defined`);
@@ -55,9 +48,7 @@ export default class GitRemote{
 	 * @see https://git-scm.com/docs/git-remote
 	 */
 	async getAll(){
-		const data = await StreamUtils.readTilEnd(
-			this._git._git_root.run('git remote --verbose')
-		);
+		const data = await this.git_client.run('git remote --verbose');
 
 		const remotes = [];
 		const regex = /(?<name>.*?)\s(?<url>.*)\s\((?<type>.*)\)([\n\r]|$)/ig;

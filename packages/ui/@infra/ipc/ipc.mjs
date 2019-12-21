@@ -1,9 +1,17 @@
 import TimeoutError from './timeout-error';
+import IPCEnvelope  from '@code-share/electron/@infra/ipc/ipc-envelope';
 
+
+
+const SHOW_DEBUG_LOGS = false;
 
 const electron = electronRequire('electron');
 const ipc_renderer = electron.ipcRenderer;
 
+
+function randomId(){
+	return Math.round(Math.random() * 100000000) + '';
+}
 
 
 export default class IPCClient{
@@ -25,68 +33,40 @@ export default class IPCClient{
 			return Promise.reject(new TypeError(`Invalid timeout value: "${timeout}"`));
 
 		return new Promise((resolve, reject) => {
-			/**
-			 * The timeout id
-			 * @type {Number}
-			 */
-			let timer_id;
-			let resolved = false;
+			const req = IPCEnvelope.data(randomId(), data);
 
-			// *Declaring the error response callback handler:
-			var onSuccess = (e, data) => {
-				if(resolved)
-					return;
-				if(timer_id)
-					clearTimeout(timer_id);
-				ipc_renderer.removeListener(channel + '@success', onSuccess);
-				ipc_renderer.removeListener(channel + '@error',   onError);
-				ipc_renderer.removeListener('error',              onError);
-				resolved = true;
-				resolve(data);
-
-				// if(process.env.NODE_ENV !== 'production')
-				// 	console.log(`Success IPC response to "${channel}"`, data);
-			};
+			const timer_id = (timeout !== 0)
+				? setTimeout(() => {
+					cb(null, IPCEnvelope.error(req.id, new TimeoutError(`Timeout of ${timeout}ms reached`)));
+				}, timeout)
+				: null;
 
 			// *Declaring the response callback handler:
-			var onError = (e, err) => {
-				if(resolved)
+			var cb = (_, res) => {
+				res = IPCEnvelope.from(res);
+				if(res.id != req.id)
 					return;
-				if(timer_id)
-					clearTimeout(timer_id);
-				ipc_renderer.removeListener(channel + '@success', onSuccess);
-				ipc_renderer.removeListener(channel + '@error',   onError);
-				ipc_renderer.removeListener('error',              onError);
-				resolved = true;
-				reject(err);
 
-				if(process.env.NODE_ENV !== 'production')
-					console.error(`Error IPC response to "${channel}"`, err);
+				ipc_renderer.removeListener(channel, cb);
+				if(timer_id !== null)
+					clearTimeout(timer_id);
+
+				if(res.error){
+					if(process.env.NODE_ENV !== 'production' && SHOW_DEBUG_LOGS)
+						console.error(`Received an IPC error response on "${channel}" ID(${res.id})`, res.error);
+					return reject(res.error);
+				}
+
+				resolve(res.data);
 			};
 
-			// *Setting the timeout functionality, if a time was specified:
-			if(timeout !== 0){
-				timer_id = setTimeout(() => {
-					if(resolved)
-						return;
-					ipc_renderer.removeListener(channel + '@success', onSuccess);
-					ipc_renderer.removeListener(channel + '@error',   onError);
-					ipc_renderer.removeListener('error',              onError);
-					resolved = true;
-					reject(new TimeoutError(`Timeout of ${timeout}ms reached`));
-				}, timeout);
-			}
-
-			// *Listening for response or errors:
-			ipc_renderer.once(channel + '@success', onSuccess);
-			ipc_renderer.once(channel + '@error',   onError);
-			ipc_renderer.once('error',              onError);
+			ipc_renderer.on(channel, cb);
 
 			// *Sending the IPC request:
-			ipc_renderer.send(channel, data);
+			ipc_renderer.send(channel, req);
 
-			if(process.env.NODE_ENV !== 'production')
-				console.log(`IPC request sent to "${channel}"`, data);
+			if(process.env.NODE_ENV !== 'production' && SHOW_DEBUG_LOGS)
+				console.log(`IPC request sent to "${channel}" ID(${req.id})`, req.data);
 		});
 	}
 }

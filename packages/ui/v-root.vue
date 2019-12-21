@@ -151,16 +151,16 @@ export default {
 	scrollbar-width: thin;
 }
 .v-root .--thin-scroll::-webkit-scrollbar-track{
-	/*border-radius: 6px;*/
-	background-color: rgba(0,0,0,0.2);
+	border-radius: 7px;
+	background-color: rgba(0,0,0,0.1);
 }
 .v-root .--thin-scroll::-webkit-scrollbar{
-	width: 5px;
-	/*background-color: var(--m-grey-100);*/
+	width: 7px;
+	height: 7px;
 }
 .v-root .--thin-scroll::-webkit-scrollbar-thumb{
-	/*border-radius: 6px;*/
-	background-color: rgba(255,255,255,0.4);
+	border-radius: 7px;
+	background-color: rgba(0,0,0,0.2);
 }
 
 .v-root > .-route{

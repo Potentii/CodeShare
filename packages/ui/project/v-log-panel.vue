@@ -48,7 +48,7 @@
 
 
 <script>
-import Git              from '../@infra/git';
+import Git              from '../git/git';
 import VGravatarPicture from '../@components/v-gravatar-picture';
 import ProjectVO        from './project-vo';
 

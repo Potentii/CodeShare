@@ -9,7 +9,7 @@
 		</div>
 
 		<ul class="-files">
-			<v-commit-diff-panel-item class="-file" :file_change="file" :key="file.path" v-for="file in files"></v-commit-diff-panel-item>
+			<v-commit-diff-panel-item class="-file" :file_change="file" :key="file.path" v-for="file in files_sorted"></v-commit-diff-panel-item>
 		</ul>
 
 	</div>
@@ -18,12 +18,10 @@
 
 
 <script>
-import Git                  from '../@infra/git';
+import Git                  from '../git/git';
 import ProjectVO            from './project-vo';
 import VCommitDiffPanelItem from './v-commit-diff-panel-item';
-import FileChange           from '@code-share/electron/git/file-change';
-import Diff                 from '@code-share/electron/git/diff';
-import DiffToPath           from '@code-share/electron/git/diff-to-path';
+import FileChange           from '../git/file-change';
 
 
 
@@ -53,12 +51,20 @@ export default {
 
 		count_unstaged(){
 			return this.files ? this.files.filter(f => f.staged === false).length : 0;
+		},
+
+		files_sorted(){
+			return this.files;
+			// return [...this.files].sort((f, f2) => f.staged?-1:1);
 		}
 	},
 
 
 	data(){
 		return {
+			/**
+			 * @type {FileChange[]}
+			 */
 			files: [],
 		};
 	},
@@ -80,18 +86,27 @@ export default {
 		 */
 		async loadFiles(project_vo){
 			if(!project_vo?.project?.details?.location){
-				// this.files = [];
+				this.files = [];
 				return;
 			}
-			this.files.push(
-				new FileChange('/path/to/my/file0.txt', new Diff('MODIFIED'), true),
-				new FileChange('/path/to/my/file1.txt', new Diff('REMOVED'), true),
-				new FileChange('/path/to/my/file2.txt', new Diff('ADDED'), false),
-				new FileChange('/path/to/my/file3.txt', new DiffToPath('MOVED', '/path/to/my/code3.txt'), true),
-				new FileChange('/path/to/my/file4.txt', new DiffToPath('RENAMED', '/path/to/my/code4.txt'), true),
-			);
-			// this.files = await new Git(project_vo?.project?.details?.location).log();
+
+			// this.files = await new Git(this.project_vo?.project?.details?.location).getWorkingTreeFilesChange();
+			// this.files = this.sort(this.files);
+
+			this.files = await new Git(this.project_vo?.project?.details?.location).diff({ include_added_unstaged: true });
+			this.files = this.sort(this.files);
+			// console.log(this.diffs.map(d => d.header));
+			// console.log(this.files.map(f => f.path));
 		},
+
+
+		sort(files){
+			return files.sort((a,b) => {
+				const path_a = a.path || a.old_path;
+				const path_b = b.path || b.old_path;
+				path_a.localeCompare(path_b);
+			});
+		}
 
 	},
 }

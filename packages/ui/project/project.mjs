@@ -1,4 +1,4 @@
-import ProjectDetails    from './project-details';
+import ProjectDetails from './project-details';
 
 
 

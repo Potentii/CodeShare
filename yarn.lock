@@ -1747,7 +1747,7 @@
     "@parcel/utils" "^1.11.0"
     physical-cpu-count "^2.0.0"
 
-"@potentii/app-data@^1.0.1":
+"@potentii/app-data@1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@potentii/app-data/-/app-data-1.0.1.tgz#21aa8b3fc579b3f009a5439f25b57aef537bf585"
   integrity sha512-m+XU8C9U/mjEpqn8NlM05ODwaBlSJrPINrPKdROzNSFcBwkxkSFd/kyjyxIMils27qHLtSLaojIoxAhHCYxSOg==
