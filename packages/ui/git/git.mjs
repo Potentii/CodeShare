@@ -19,6 +19,8 @@ export default class Git{
 	 * @param {String} dir The repository directory to run the commands
 	 */
 	constructor(dir){
+		if(typeof dir != 'string' || !dir || !dir.trim())
+			throw new Error(`Cannot create Git client: Invalid directory "${dir}"`);
 		this.dir = path_node.join(dir);
 		this.git_client = new GitIPCClient(this.dir);
 	}
@@ -231,34 +233,45 @@ export default class Git{
 				// 	});
 			}
 
-			const hunks_regex = /@@ -(?<a_range_start>\d+)(?:,(?<a_range_size>\d+))? \+(?<b_range_start>\d+)(?:,(?<b_range_size>\d+))? @@(?<content>.+)/gis;
-			while((match = hunks_regex.exec(data_chunk)) !== null){
+
+			const hunk_header_regex = /@@ -(?<a_range_start>\d+)(?:,(?<a_range_size>\d+))? \+(?<b_range_start>\d+)(?:,(?<b_range_size>\d+))? @@[\n\r]?/g;
+			const hunks_headers_indexes = [];
+			while((match = hunk_header_regex.exec(data_chunk)) !== null){
 				const a_range = new DiffHunkRange(match.groups.a_range_start, match.groups.a_range_size);
 				const b_range = new DiffHunkRange(match.groups.b_range_start, match.groups.b_range_size);
-				const hunk = new DiffHunk(a_range, b_range, []);
+				const hunk = new DiffHunk(a_range, b_range, [], true);
 
-				const hunk_raw_lines = match.groups.content.split('\n');
-				for(let hunk_raw_line of hunk_raw_lines){
-					const line_regex = /^(?<mode>.)?(?<content>.*)$/;
-					match = line_regex.exec(hunk_raw_line);
-					if(match !== null){
-						const line = new DiffHunkLine(null, match.groups.content);
+				file.hunks.push(hunk);
 
-						switch(match.groups.mode){
-						case '+':  line.mode = DiffHunkLine.LINE_MODE.ADDED;       break;
-						case '-':  line.mode = DiffHunkLine.LINE_MODE.REMOVED;     break;
-						case '\\': line.mode = DiffHunkLine.LINE_MODE.NO_NEW_LINE; break;
-						default:   line.mode = DiffHunkLine.LINE_MODE.UNCHANGED;   break;
-						}
+				if(hunks_headers_indexes.length)
+					hunks_headers_indexes[hunks_headers_indexes.length-1].end = match.index;
+				hunks_headers_indexes.push({
+					start: hunk_header_regex.lastIndex
+				});
+			}
 
-						if(line.mode != DiffHunkLine.LINE_MODE.NO_NEW_LINE
-							&& (line.mode != DiffHunkLine.LINE_MODE.UNCHANGED || !!line.content)){
-							hunk.lines.push(line);
-						}
+			for(let i=0; i<hunks_headers_indexes.length; i++){
+				const content = data_chunk.substring(hunks_headers_indexes[i].start, hunks_headers_indexes[i]?.end);
+				const hunk = file.hunks[i];
+
+				const hunk_lines_regex = /^(?<mode>.)(?<content>.*)$/mg;
+				while((match = hunk_lines_regex.exec(content)) !== null){
+					const line = new DiffHunkLine(null, match.groups.content);
+
+					switch(match.groups.mode){
+					case '+':  line.mode = DiffHunkLine.LINE_MODE.ADDED;       break;
+					case '-':  line.mode = DiffHunkLine.LINE_MODE.REMOVED;     break;
+					case '\\': line.mode = DiffHunkLine.LINE_MODE.NO_NEW_LINE; break;
+					default:   line.mode = DiffHunkLine.LINE_MODE.UNCHANGED;   break;
+					}
+
+					if(line.mode != DiffHunkLine.LINE_MODE.NO_NEW_LINE
+						&& (line.mode != DiffHunkLine.LINE_MODE.UNCHANGED || !!line.content)){
+						hunk.lines.push(line);
 					}
 				}
-				file.hunks.push(hunk);
 			}
+
 			changes.push(file);
 		}
 

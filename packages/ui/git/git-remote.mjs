@@ -44,7 +44,7 @@ export default class GitRemote{
 
 	/**
 	 *
-	 * @returns {Promise<[]>}
+	 * @returns {Promise<Remote[]>}
 	 * @see https://git-scm.com/docs/git-remote
 	 */
 	async getAll(){

@@ -5,21 +5,15 @@
 			<template v-for="commit in commits">
 
 				<li class="-commit --head" v-if="commit.hash == head">
-					<div class="-hist">
-						<div class="-dot"></div>
+<!--					<div class="-hist">-->
+<!--						<div class="-dot"></div>-->
+<!--					</div>-->
+					<div class="-message" >
+						<span class="-hash">&nbsp;</span>
+						<span class="-text">You're here</span>
 					</div>
-					<form class="-form">
-						<textarea class="-input --thin-scroll" v-model="new_commit.message" placeholder="New commit message" rows="3"></textarea>
-						<div class="-actions">
-							<button class="-action -commit-n-push" type="button" v-if="remotes && remotes.some(r => r.type == 'push')">
-								<span class="-label">Commit & Push</span>
-							</button>
-							<button class="-action -commit" type="button">
-								<span class="-label">Commit</span>
-							</button>
-						</div>
-					</form>
 				</li>
+
 
 				<li class="-commit" :key="commit.hash">
 					<div class="-hist">
@@ -88,12 +82,17 @@ export default {
 	},
 
 
-	async beforeMount(){
-		await Promise.all([
-			this.loadCommits(this.project_vo),
-			this.loadHEAD(this.project_vo),
-			this.loadRemotes(this.project_vo),
-		]);
+	watch: {
+		project_vo: {
+			async handler(project_vo){
+				await Promise.all([
+					this.loadCommits(project_vo),
+					this.loadHEAD(project_vo),
+					this.loadRemotes(project_vo),
+				]);
+			},
+			immediate: true
+		}
 	},
 
 
@@ -171,9 +170,9 @@ export default {
 	overflow: hidden;
 }
 .v-log-panel > .-commits > .-commit.--head{
-	grid-template-columns: calc(var(--commit-side-margins) * 2) 1fr;
-	grid-template-areas:
-		'hist form';
+	/*grid-template-columns: calc(var(--commit-side-margins) * 2) 1fr;*/
+	/*grid-template-areas:*/
+	/*	'hist form';*/
 }
 .v-log-panel > .-commits > .-commit + .-commit::before{
 	content: '';
@@ -192,9 +191,6 @@ export default {
 }
 .v-log-panel > .-commits > .-commit > .-author{
 	grid-area: author;
-}
-.v-log-panel > .-commits > .-commit > .-form{
-	grid-area: form;
 }
 
 
@@ -306,49 +302,4 @@ export default {
 	white-space: nowrap;
 	overflow: hidden;
 }
-
-
-.v-log-panel > .-commits > .-commit > .-form{
-	display: flex;
-	padding-right: var(--commit-side-margins);
-}
-.v-log-panel > .-commits > .-commit > .-form > .-input{
-	flex: 1 1 auto;
-
-	padding: 0.8em 1em;
-	margin-right: calc(var(--commit-side-margins) / 2);
-
-	resize: none;
-
-	border: 1px solid rgba(0,0,0,0.06);
-	border-radius: 8px;
-
-	font-size: 14px;
-	font-family: 'Roboto', sans-serif;
-	letter-spacing: 0.03em;
-
-	transition: border-color 0.15s ease;
-}
-.v-log-panel > .-commits > .-commit > .-form > .-input:focus{
-	border-color: rgba(0,0,0,0.13);
-}
-.v-log-panel > .-commits > .-commit > .-form > .-actions{
-	display: flex;
-	flex-direction: column;
-	width: 6em;
-}
-.v-log-panel > .-commits > .-commit > .-form > .-actions > .-action{
-	padding: 0.6em 0.8em;
-	background-color: var(--m-grey-300);
-	border-radius: 4px;
-}
-.v-log-panel > .-commits > .-commit > .-form > .-actions > .-action + .-action{
-	margin-top: 0.8em;
-}
-.v-log-panel > .-commits > .-commit > .-form > .-actions > .-action > .-label{
-	font-size: 12px;
-	letter-spacing: 0.03em;
-}
-
-
 </style>

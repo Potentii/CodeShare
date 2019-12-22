@@ -1,5 +1,5 @@
 <template>
-	<li class="v-commit-diff-panel-item" :data-type="file_change.event_type">
+	<li class="v-commit-diff-item" :data-type="file_change.event_type">
 
 		<div class="-file-header">
 
@@ -69,12 +69,23 @@
 
 		<div class="-expanded" v-if="expanded">
 			<ul class="-hunks">
-				<li class="-hunk --thin-scroll" v-for="hunk in file_change.hunks">
+				<li class="-hunk --thin-scroll" v-for="(hunk, index) in file_change.hunks">
+					<div class="-header">
+						<div class="-stage-container">
+							<input class="-stage" type="checkbox" v-model="hunk.staged">
+						</div>
+						<span class="-number">Hunk {{ index+1 }}</span>
+						{{ hunk.a_range }}{{ hunk.b_range }}
+					</div>
 					<ul class="-lines">
-						<li class="-line" :data-mode="line.mode" v-for="line in hunk.lines">
-							<span class="-mode" v-if="line.mode=='ADDED'">+</span>
-							<span class="-mode" v-else-if="line.mode=='REMOVED'">-</span>
-							<span class="-mode" v-else>&nbsp;</span>
+						<li class="-line" :data-mode="line.mode" v-for="(line, line_index) in hunk.lines">
+							<span class="-margins">
+								<span class="-line-number-a">{{ hunk.a_range.start+line_index < hunk.a_range.size ? hunk.a_range.start+line_index : ' ' }}</span>
+								<span class="-line-number-b">{{ hunk.b_range.start+line_index }}</span>
+								<span class="-mode" v-if="line.mode=='ADDED'">+</span>
+								<span class="-mode" v-else-if="line.mode=='REMOVED'">-</span>
+								<span class="-mode" v-else>&nbsp;</span>
+							</span>
 							<span class="-content">{{ line.content }}</span>
 						</li>
 					</ul>
@@ -88,15 +99,13 @@
 
 
 <script>
-import Git        from '../git/git';
-import ProjectVO  from './project-vo';
 import FileChange from '../git/file-change';
 
 
 
 export default {
 
-	name: 'v-commit-diff-panel-item',
+	name: 'v-commit-diff-item',
 
 
 	components: { },
@@ -122,20 +131,6 @@ export default {
 
 	methods: {
 
-		// /**
-		//  *
-		//  * @param {ProjectVO} project_vo
-		//  * @returns {Promise<void>}
-		//  */
-		// async loadDiff(file_change){
-		// 	if(!project_vo?.project?.details?.location){
-		// 		// this.files = [];
-		// 		return;
-		// 	}
-		//
-		// 	// this.files = await new Git(project_vo?.project?.details?.location).log();
-		// },
-
 	},
 }
 </script>
@@ -143,48 +138,48 @@ export default {
 
 
 <style>
-.v-commit-diff-panel-item{
+.v-commit-diff-item{
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
 }
-.v-commit-diff-panel-item > .-file-header{
+.v-commit-diff-item > .-file-header{
 	display: grid;
 	align-items: center;
-	grid-template-columns: calc(var(--diff-side-margins) * 2) auto 1fr calc(var(--diff-side-margins) * 2);
+	grid-template-columns: calc(var(--diff-side-margins) * 2) 1fr calc(var(--diff-side-margins) * 2);
 	grid-template-rows: auto;
 	grid-template-areas:
-		'stage content ... actions';
+		'stage content actions';
 
 	padding: 0.5em 0;
 }
-.v-commit-diff-panel-item > .-file-header > .-stage-container{
+.v-commit-diff-item > .-file-header > .-stage-container{
 	grid-area: stage;
 }
-.v-commit-diff-panel-item > .-file-header > .-content{
+.v-commit-diff-item > .-file-header > .-content{
 	grid-area: content;
 }
-.v-commit-diff-panel-item > .-file-header > .-actions{
+.v-commit-diff-item > .-file-header > .-actions{
 	grid-area: actions;
 }
 
-.v-commit-diff-panel-item > .-file-header{
+.v-commit-diff-item > .-file-header{
 	--diff-type-color: hsla(0, 0%, 0%, 0.1);
 }
-.v-commit-diff-panel-item[data-type="ORDINARY"] > .-file-header{
+.v-commit-diff-item[data-type="ORDINARY"] > .-file-header{
 	--diff-type-color: hsla(205, 80%, 50%, 0.1);
 }
-.v-commit-diff-panel-item[data-type="REMOVED"] > .-file-header{
+.v-commit-diff-item[data-type="REMOVED"] > .-file-header{
 	--diff-type-color: hsla(350, 70%, 50%, 0.1);
 }
-.v-commit-diff-panel-item[data-type="ADDED"] > .-file-header{
+.v-commit-diff-item[data-type="ADDED"] > .-file-header{
 	--diff-type-color: hsla(130, 80%, 50%, 0.1);
 }
-.v-commit-diff-panel-item[data-type="MOVED"] > .-file-header,
-.v-commit-diff-panel-item[data-type="RENAMED"] > .-file-header{
+.v-commit-diff-item[data-type="MOVED"] > .-file-header,
+.v-commit-diff-item[data-type="RENAMED"] > .-file-header{
 	--diff-type-color: hsla(0, 0%, 50%, 0.1);
 }
-.v-commit-diff-panel-item[data-type] > .-file-header{
+.v-commit-diff-item[data-type] > .-file-header{
 	background-image: linear-gradient(
 		to right,
 		var(--diff-type-color) 10%,
@@ -193,146 +188,181 @@ export default {
 }
 
 
-.v-commit-diff-panel-item > .-file-header > .-stage-container{
+.v-commit-diff-item > .-file-header > .-stage-container{
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
-.v-commit-diff-panel-item > .-file-header > .-content{
+.v-commit-diff-item > .-file-header > .-content{
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
 }
-.v-commit-diff-panel-item > .-file-header > .-content > .-path{
+.v-commit-diff-item > .-file-header > .-content > .-path{
 	font-family: 'Roboto', sans-serif;
 	font-size: 14px;
 	padding-top: 1.1em;
 }
-.v-commit-diff-panel-item > .-file-header > .-content > .-short-diff{
+.v-commit-diff-item > .-file-header > .-content > .-short-diff{
 	opacity: 0.6;
 	font-family: 'Roboto', sans-serif;
 	font-size: 11px;
 	transition: opacity 0.15s ease;
 }
-.v-commit-diff-panel-item:hover > .-file-header > .-content > .-short-diff{
+.v-commit-diff-item:hover > .-file-header > .-content > .-short-diff{
 	opacity: 1;
 }
-.v-commit-diff-panel-item > .-file-header > .-content > .-path + .-short-diff{
+.v-commit-diff-item > .-file-header > .-content > .-path + .-short-diff{
 	margin-top: 0.3em;
 }
 
-.v-commit-diff-panel-item .--path{
+.v-commit-diff-item .--path{
+	user-select: text;
 	display: inline-flex;
 	align-items: center;
 	letter-spacing: 0.06em;
 }
-.v-commit-diff-panel-item .--path > .-dir{
+.v-commit-diff-item .--path > .-dir{
 	cursor: default;
 	user-select: text;
 	opacity: 0.5;
 	font-size: 0.9em;
 }
-.v-commit-diff-panel-item .--path > .-file-name{
+.v-commit-diff-item .--path > .-file-name{
 	cursor: default;
 	user-select: text;
 	margin-left: 0.1em;
 }
 
-.v-commit-diff-panel-item > .-file-header > .-content > .-short-diff > .-ordinary{
+.v-commit-diff-item > .-file-header > .-content > .-short-diff > .-ordinary{
 	color: var(--m-light-blue-a400);
 }
-/*.v-commit-diff-panel-item > .-file-header > .-content > .-short-diff > .-ordinary > span + span{*/
-/*	margin-left: 0.8em;*/
-/*}*/
-/*.v-commit-diff-panel-item > .-file-header > .-content > .-short-diff > .-ordinary > .-added-lines{*/
-/*	color: var(--m-green-a700);*/
-/*}*/
-/*.v-commit-diff-panel-item > .-file-header > .-content > .-short-diff > .-ordinary > .-removed-lines{*/
-/*	color: var(--m-red-a700);*/
-/*}*/
-/*.v-commit-diff-panel-item > .-file-header > .-content > .-short-diff > .-ordinary > .-changed-lines{*/
-/*	color: var(--m-light-blue-a400);*/
-/*}*/
-
-.v-commit-diff-panel-item > .-file-header > .-content > .-short-diff > .-renamed{
+.v-commit-diff-item > .-file-header > .-content > .-short-diff > .-renamed{
 
 }
-.v-commit-diff-panel-item > .-file-header > .-content > .-short-diff > .-moved{
+.v-commit-diff-item > .-file-header > .-content > .-short-diff > .-moved{
 
 }
-.v-commit-diff-panel-item > .-file-header > .-content > .-short-diff > .-added{
+.v-commit-diff-item > .-file-header > .-content > .-short-diff > .-added{
 	color: var(--m-green-a700);
 }
-.v-commit-diff-panel-item > .-file-header > .-content > .-short-diff > .-removed{
+.v-commit-diff-item > .-file-header > .-content > .-short-diff > .-removed{
 	color: var(--m-red-a700);
 }
 
 
-.v-commit-diff-panel-item > .-file-header > .-actions{
+.v-commit-diff-item > .-file-header > .-actions{
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
 
 
-.v-commit-diff-panel-item > .-expanded{
+.v-commit-diff-item > .-expanded{
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
 }
-.v-commit-diff-panel-item > .-expanded > .-hunks{
+.v-commit-diff-item > .-expanded::after{
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 1px;
+	background-color: rgba(0,0,0,0.06);
+}
+.v-commit-diff-item > .-expanded > .-hunks{
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
 }
-.v-commit-diff-panel-item > .-expanded > .-hunks > .-hunk{
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk{
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
 	overflow-x: auto;
 }
-.v-commit-diff-panel-item > .-expanded > .-hunks > .-hunk > .-lines{
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-header{
+	display: flex;
+	align-items: center;
+	background-color: var(--m-grey-200);
+	height: 1.8em;
+}
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-header::after{
+	content: '';
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 1px;
+	background-color: rgba(0,0,0,0.06);
+}
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-header > .-stage-container{
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: calc(var(--diff-side-margins) * 2);
+}
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-header > .-number{
+	font-size: 12px;
+}
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines{
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
 	width: auto;
 }
-.v-commit-diff-panel-item > .-expanded > .-hunks > .-hunk > .-lines > .-line{
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines > .-line{
 	display: flex;
 	align-items: stretch;
 	height: 1.3em;
 	font-family: 'Roboto Mono', monospace;
 }
-.v-commit-diff-panel-item > .-expanded > .-hunks > .-hunk > .-lines > .-line{
-	--line-mode-color: 180, 180, 180;
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines > .-line{
+	--line-mode-color: 200, 200, 200;
 }
-.v-commit-diff-panel-item > .-expanded > .-hunks > .-hunk > .-lines > .-line[data-mode="ADDED"]{
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines > .-line[data-mode="ADDED"]{
 	--line-mode-color: 0, 225, 80;
 }
-.v-commit-diff-panel-item > .-expanded > .-hunks > .-hunk > .-lines > .-line[data-mode="REMOVED"]{
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines > .-line[data-mode="REMOVED"]{
 	--line-mode-color: 225, 0, 80;
 }
-.v-commit-diff-panel-item > .-expanded > .-hunks > .-hunk > .-lines > .-line > .-mode{
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines > .-line > .-margins{
 	flex: 0 0 auto;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 2em;
 	font-size: 10px;
-
 	background-color: rgba(var(--line-mode-color), 0.15);
+	padding: 0.8em;
 }
-.v-commit-diff-panel-item > .-expanded > .-hunks > .-hunk > .-lines > .-line > .-mode::after{
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines > .-line > .-margins::after{
 	content: '';
 	position: absolute;
 	top: 0;
 	right: 0;
 	width: 1px;
 	height: 100%;
-	/*background-color: var(--m-grey-200);*/
 	background-color: rgba(var(--line-mode-color), 0.17);
 }
-.v-commit-diff-panel-item > .-expanded > .-hunks > .-hunk > .-lines > .-line > .-content{
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines > .-line > .-margins > .-line-number-a{
+	margin-right: 0.5em;
+}
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines > .-line > .-margins > .-line-number-b{
+	margin-right: 1em;
+}
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines > .-line > .-margins > .-line-number-a,
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines > .-line > .-margins > .-line-number-b{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0.4;
+	width: 1.3em;
+}
+
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines > .-line > .-content{
 	user-select: text;
 	flex: 1 1 auto;
 	display: inline-flex;
@@ -340,7 +370,6 @@ export default {
 	white-space: pre;
 	font-size: 12px;
 	padding: 0 0.5em;
-	background-color: rgba(var(--line-mode-color), 0.08);
-	/*height: 1.3rem;*/
+	background-color: rgba(var(--line-mode-color), 0.07);
 }
 </style>

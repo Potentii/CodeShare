@@ -23,7 +23,7 @@
 
 		<div class="-content --thin-scroll">
 			<v-log-panel class="-log-panel" v-if="selected_project_vo" :project_vo="selected_project_vo"></v-log-panel>
-			<v-commit-diff-panel class="-diff-panel" v-if="selected_project_vo" :project_vo="selected_project_vo"></v-commit-diff-panel>
+			<v-commit-panel class="-diff-panel" v-if="selected_project_vo" :project_vo="selected_project_vo"></v-commit-panel>
 		</div>
 
 	</div>
@@ -34,8 +34,7 @@
 <script>
 import VLogPanel                  from './v-log-panel';
 import { mapMutations, mapState } from 'vuex';
-import VCommitDiffPanel           from './v-commit-diff-panel';
-import store                      from '../store';
+import VCommitPanel               from './v-commit-panel';
 
 
 
@@ -44,7 +43,7 @@ export default {
 	name: 'v-project-view',
 
 
-	components: { VCommitDiffPanel, VLogPanel },
+	components: { VCommitPanel, VLogPanel },
 
 
 	computed: {
@@ -52,22 +51,24 @@ export default {
 	},
 
 
-	beforeRouteEnter(to, from, next){
-		const route_project_id = to.params._project;
-		const projects = store.state.project.project_vos;
+	watch: {
+		// *Reacting to changes on the _project route param, so the correct project is loaded:
+		$route: {
+			handler($router){
+				// *Trying to load the route project:
+				const _project = this.$route.params._project;
+				const project = this.project_vos?.find(p => p.id == _project);
 
-		// *Checking if the user has projects, but haven't navigated to one of them:
-		if(!route_project_id && projects?.length)
-			next({ name: 'project', params: { _project: projects[0].id } });
-		else
-			next();
-	},
+				// *Loading the first project, if none were provided or found:
+				if((!_project && this.project_vos?.length) || (!project && this.project_vos?.length)){
+					this.$router.replace({ name: 'project', params: { _project: this.project_vos[0].id } });
+					return;
+				}
 
-
-	async beforeMount(){
-		const _project = this.$route.params._project;
-		const project = this.project_vos?.find(p => p.id == _project);
-		this.setSelectedProjectVO(project);
+				this.setSelectedProjectVO(project);
+			},
+			immediate: true
+		}
 	},
 
 
@@ -165,7 +166,7 @@ export default {
 	flex: 1 1 auto;
 }
 .v-project-view > .-content > .-diff-panel{
-	flex: 1 1 auto;
-	max-width: 50%;
+	flex: 0 0 auto;
+	width: 40%;
 }
 </style>

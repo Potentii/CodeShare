@@ -61,6 +61,14 @@ export default class FileChange{
 		return EVENT_TYPE.UNKNOWN;
 	}
 
+	// TODO make this a computed property that reflect on its hunks staging property ('STAGED', 'UNSTAGED', 'PARTIALLY_STAGED')
+	set staged(staged){
+		this._staged = staged;
+	}
+	get staged(){
+		return this._staged;
+	}
+
 
 	get dir(){
 		return this.path ? path_node.dirname(this.path) : null;

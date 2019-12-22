@@ -1,7 +1,8 @@
-import Vue         from 'vue'
-import VState      from 'v-state'
-import VTheMask    from 'vue-the-mask'
-import VueShortkey from 'vue-shortkey'
+import Vue           from 'vue'
+import VState        from 'v-state'
+import VTheMask      from 'vue-the-mask'
+import VueShortkey   from 'vue-shortkey'
+import AsyncComputed from 'vue-async-computed'
 
 import store          from './store'
 import router         from './router'
@@ -19,6 +20,7 @@ Vue.config.performance = process.env.NODE_ENV === 'development';
 Vue.use(VState);
 Vue.use(VTheMask);
 Vue.use(VueShortkey);
+Vue.use(AsyncComputed);
 Vue.use(VLog);
 Vue.use(VId);
 Vue.use(VInject);

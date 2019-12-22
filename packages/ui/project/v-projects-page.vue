@@ -22,8 +22,8 @@
 
 
 <script>
-import { mapActions, mapState } from 'vuex';
-import store                    from '../store';
+import { mapActions, mapMutations, mapState } from 'vuex';
+import store                                  from '../store';
 
 
 
@@ -38,7 +38,9 @@ export default {
 
 
 	async beforeRouteEnter(to, from, next){
+		console.log('loading');
 		await store.dispatch('project/loadAndStoreAllProjects');
+		console.log('loaded');
 
 		if(to.name == 'projects')
 			next({ name: 'project' });
