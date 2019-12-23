@@ -67,6 +67,8 @@ export default {
    --m-grey-900: #212121;
 
 
+	--transparent-black: rgba(0,0,0,0.06);
+
 
    /**
     * Theme colors
@@ -171,5 +173,15 @@ export default {
 }
 .v-root > .-route.--page-transition-leave-active{
 	opacity: 0;
+}
+
+.v-root .v-button.--form-control{
+	--v-button--bg: var(--m-grey-200);
+	--var-fg: var(--m-grey-900);
+	--v-button--border-radius: 6px;
+}
+.v-root .v-button.--form-control.--positive{
+	--v-button--bg: var(--m-green-a700);
+	--var-fg: var(--m-grey-50);
 }
 </style>

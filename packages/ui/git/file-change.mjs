@@ -34,7 +34,10 @@ export default class FileChange{
 
 
 	set path(path){
-		this._path = typeof path == 'string' ? path_node.join(path) : null;
+		if(path == '/dev/null')
+			this._path = null;
+		else
+			this._path = typeof path == 'string' ? path_node.join(path) : null;
 	}
 	get path(){
 		return this._path;
@@ -42,7 +45,10 @@ export default class FileChange{
 
 
 	set old_path(old_path){
-		this._old_path = typeof old_path == 'string' ? path_node.join(old_path) : null;
+		if(old_path == '/dev/null')
+			this._old_path = null;
+		else
+			this._old_path = typeof old_path == 'string' ? path_node.join(old_path) : null;
 	}
 	get old_path(){
 		return this._old_path;

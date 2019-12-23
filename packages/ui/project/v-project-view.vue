@@ -7,19 +7,30 @@
 				<span class="-branch">/<span class="-branch-name">master</span></span>
 			</div>
 
+
 			<div class="-actions">
 
-				<button class="-action -create-new" title="Create new">
-					<i class="-icon material-icons">add</i>
-				</button>
+				<!-- * Create menu * -->
+				<v-button
+					class="-action -create-new"
+					type="button"
+					icon="add"
+					title="Create new">
+				</v-button>
 
-				<button class="-action -settings" title="Project settings">
-					<i class="-icon material-icons">settings</i>
-				</button>
+
+				<!-- * Settings * -->
+				<v-button
+					class="-action -settings"
+					type="button"
+					icon="settings"
+					title="Project settings">
+				</v-button>
 
 			</div>
 
 		</header>
+
 
 		<div class="-content --thin-scroll">
 			<v-log-panel class="-log-panel" v-if="selected_project_vo" :project_vo="selected_project_vo"></v-log-panel>
@@ -35,6 +46,7 @@
 import VLogPanel                  from './v-log-panel';
 import { mapMutations, mapState } from 'vuex';
 import VCommitPanel               from './v-commit-panel';
+import VButton                    from '../@components/v-button';
 
 
 
@@ -43,7 +55,7 @@ export default {
 	name: 'v-project-view',
 
 
-	components: { VCommitPanel, VLogPanel },
+	components: { VButton, VCommitPanel, VLogPanel },
 
 
 	computed: {
@@ -138,21 +150,18 @@ export default {
 	display: flex;
 }
 .v-project-view > .-header > .-actions > .-action{
-
+	--v-button--padding-h: 0;
+	--v-button--padding-v: 0;
+	--v-button--border-radius: 50%;
+	--v-button--width: 3em;
+	--v-button--height: 3em;
+	--v-button--fg: var(--m-grey-400);
+	--v-button--fg--hover: var(--m-grey-600);
+	--v-button--bg--hover: var(--transparent-black);
 }
 .v-project-view > .-header > .-actions > .-action + .-action{
 	margin-left: 1.5em;
 }
-.v-project-view > .-header > .-actions > .-action > .-icon.material-icons{
-	font-size: 20px;
-	color: var(--m-grey-400);
-
-	transition: color 0.15s ease;
-}
-.v-project-view > .-header > .-actions > .-action:hover > .-icon.material-icons{
-	color: var(--m-grey-500);
-}
-
 
 
 .v-project-view > .-content{

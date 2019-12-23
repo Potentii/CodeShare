@@ -1,16 +1,35 @@
 <template>
-	<form class="v-new-commit-form" @submit.native.prevent="onSubmit">
+	<form class="v-new-commit-form" @submit.prevent="onSubmit">
 
 		<textarea class="-input --thin-scroll" v-model="message" placeholder="New commit message" rows="3"></textarea>
 
 
 		<div class="-actions">
-			<button class="-action -commit" type="button">
-				<span class="-label">Commit</span>
-			</button>
-			<button class="-action -commit-n-push" type="button" v-if="has_push_remotes">
-				<span class="-label">Commit & Push</span>
-			</button>
+
+			<!-- * Commit * -->
+			<v-button
+				class="-action -commit --form-control"
+				type="submit"
+				text="Commit"
+				title="Commit the changes"
+				@click="mode = 'COMMIT'"
+				capsule
+				uppercase>
+			</v-button>
+
+
+			<!-- * Commit and push * -->
+			<v-button
+				class="-action -commit-n-push --form-control"
+				type="submit"
+				text="Commit & Push"
+				title="Commit the changes and push to the server"
+				v-if="has_push_remotes"
+				@click="mode = 'COMMIT_N_PUSH'"
+				capsule
+				uppercase>
+			</v-button>
+
 		</div>
 
 	</form>
@@ -20,12 +39,16 @@
 
 <script>
 import ProjectVO from './project-vo';
+import VButton   from '../@components/v-button';
 
 
 
 export default {
 
 	name: 'v-new-commit-form',
+
+
+	components: { VButton },
 
 
 	props: {
@@ -41,6 +64,7 @@ export default {
 
 	data(){
 		return {
+			mode: null,
 			message: '',
 		};
 	},
@@ -58,7 +82,7 @@ export default {
 	methods: {
 
 		async onSubmit(){
-
+			console.log(this.mode);
 		}
 
 	},
@@ -99,17 +123,7 @@ export default {
 	align-items: center;
 	margin-top: 0.8em;
 }
-.v-new-commit-form > .-actions > .-action{
-	padding: 0.6em 0.8em;
-	background-color: var(--m-grey-300);
-	border-radius: 4px;
-	box-shadow: 0 3px 8px -2px rgba(0,0,0,0.15);
-}
 .v-new-commit-form > .-actions > .-action + .-action{
 	margin-left: 0.8em;
-}
-.v-new-commit-form > .-actions > .-action > .-label{
-	font-size: 12px;
-	letter-spacing: 0.03em;
 }
 </style>

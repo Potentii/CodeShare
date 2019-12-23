@@ -69,22 +69,27 @@
 
 		<div class="-expanded" v-if="expanded">
 			<ul class="-hunks">
-				<li class="-hunk --thin-scroll" v-for="(hunk, index) in file_change.hunks">
+				<li class="-hunk --thin-scroll" :class="{ '--big-line-numbers': hunk.lines && hunk.lines.length && hunk.lines[hunk.lines.length-1].number_a > 999 || hunk.lines[hunk.lines.length-1].number_b > 999 }" v-for="(hunk, index) in file_change.hunks">
 					<div class="-header">
 						<div class="-stage-container">
 							<input class="-stage" type="checkbox" v-model="hunk.staged">
 						</div>
 						<span class="-number">Hunk {{ index+1 }}</span>
-						{{ hunk.a_range }}{{ hunk.b_range }}
+						<div class="-actions">
+							<button class="-action -revert" type="button">
+								<span class="-label">Revert</span>
+							</button>
+						</div>
 					</div>
 					<ul class="-lines">
-						<li class="-line" :data-mode="line.mode" v-for="(line, line_index) in hunk.lines">
+						<li class="-line" :data-mode="line.mode" v-for="line in hunk.lines">
+
 							<span class="-margins">
-								<span class="-line-number-a">{{ hunk.a_range.start+line_index < hunk.a_range.size ? hunk.a_range.start+line_index : ' ' }}</span>
-								<span class="-line-number-b">{{ hunk.b_range.start+line_index }}</span>
-								<span class="-mode" v-if="line.mode=='ADDED'">+</span>
-								<span class="-mode" v-else-if="line.mode=='REMOVED'">-</span>
-								<span class="-mode" v-else>&nbsp;</span>
+								<span class="-line-number-a">{{ line.number_a }}</span>
+								<span class="-line-number-b">{{ line.number_b }}</span>
+<!--								<span class="-mode" v-if="line.mode=='ADDED'">+</span>-->
+<!--								<span class="-mode" v-else-if="line.mode=='REMOVED'">-</span>-->
+<!--								<span class="-mode" v-else>&nbsp;</span>-->
 							</span>
 							<span class="-content">{{ line.content }}</span>
 						</li>
@@ -124,7 +129,7 @@ export default {
 
 	data(){
 		return {
-			expanded: true,
+			expanded: false,
 		};
 	},
 
@@ -263,15 +268,6 @@ export default {
 	flex-direction: column;
 	align-items: stretch;
 }
-.v-commit-diff-item > .-expanded::after{
-	content: '';
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 1px;
-	background-color: rgba(0,0,0,0.06);
-}
 .v-commit-diff-item > .-expanded > .-hunks{
 	display: flex;
 	flex-direction: column;
@@ -284,10 +280,27 @@ export default {
 	overflow-x: auto;
 }
 .v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-header{
-	display: flex;
+	display: grid;
+	grid-template-columns: calc(var(--diff-side-margins) * 2) 1fr auto;
+	grid-template-rows: auto;
+	grid-template-areas:
+		'stage number actions';
+	/*display: flex;*/
 	align-items: center;
+
+	/*height: 1.8em;*/
+
 	background-color: var(--m-grey-200);
-	height: 1.8em;
+}
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-header::before{
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 1px;
+	background-color: rgba(0,0,0,0.06);
+	z-index: 1;
 }
 .v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-header::after{
 	content: '';
@@ -299,15 +312,36 @@ export default {
 	background-color: rgba(0,0,0,0.06);
 }
 .v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-header > .-stage-container{
-	flex: 0 0 auto;
+	grid-area: stage;
+}
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-header > .-number{
+	grid-area: number;
+}
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-header > .-actions{
+	grid-area: actions;
+}
+
+
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-header > .-stage-container{
+	/*flex: 0 0 auto;*/
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: calc(var(--diff-side-margins) * 2);
+	/*width: calc(var(--diff-side-margins) * 2);*/
 }
 .v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-header > .-number{
 	font-size: 12px;
+	padding: 1em 0;
 }
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-header > .-actions{
+	display: flex;
+	align-items: center;
+}
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-header > .-actions > .-action{
+	padding: 0.6em 0.8em;
+}
+
+
 .v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines{
 	display: flex;
 	flex-direction: column;
@@ -334,7 +368,7 @@ export default {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 10px;
+	font-size: 9px;
 	background-color: rgba(var(--line-mode-color), 0.15);
 	padding: 0.8em;
 }
@@ -348,19 +382,25 @@ export default {
 	background-color: rgba(var(--line-mode-color), 0.17);
 }
 .v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines > .-line > .-margins > .-line-number-a{
-	margin-right: 0.5em;
+	margin-right: 0.6em;
 }
 .v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines > .-line > .-margins > .-line-number-b{
-	margin-right: 1em;
+	/*margin-right: 1em;*/
 }
 .v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines > .-line > .-margins > .-line-number-a,
 .v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines > .-line > .-margins > .-line-number-b{
+	opacity: 0.4;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	opacity: 0.4;
-	width: 1.3em;
+	width: 1.9em;
 }
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk.--big-line-numbers > .-lines > .-line > .-margins > .-line-number-a,
+.v-commit-diff-item > .-expanded > .-hunks > .-hunk.--big-line-numbers > .-lines > .-line > .-margins > .-line-number-b{
+	width: 2.8em;
+}
+
+
 
 .v-commit-diff-item > .-expanded > .-hunks > .-hunk > .-lines > .-line > .-content{
 	user-select: text;
@@ -368,6 +408,7 @@ export default {
 	display: inline-flex;
 	align-items: center;
 	white-space: pre;
+	tab-size: 3;
 	font-size: 12px;
 	padding: 0 0.5em;
 	background-color: rgba(var(--line-mode-color), 0.07);

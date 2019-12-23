@@ -13,6 +13,7 @@
 	"type": "module",
 	"dependencies": {
 		"@babel/runtime": "7.2.0",
+		"parse-diff": "^0.6.0",
 		"v-state": "1.1.2",
 		"vue": "2.6.10",
 		"vue-async-computed": "3.7.0",

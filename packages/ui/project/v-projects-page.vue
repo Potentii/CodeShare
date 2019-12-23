@@ -22,8 +22,8 @@
 
 
 <script>
-import { mapActions, mapMutations, mapState } from 'vuex';
-import store                                  from '../store';
+import { mapActions, mapState } from 'vuex';
+import store                    from '../store';
 
 
 
@@ -102,12 +102,17 @@ export default {
 	opacity: 1;
 	font-family: 'Roboto Medium', sans-serif;
 }
+
 .v-projects-page > .-projects > .-project:hover{
 	opacity: 1;
 }
 .v-projects-page > .-projects > .-project:active{
-	opacity: 1;
 	background-color: rgba(0,0,0,0.06);
+}
+.v-projects-page > .-projects > .-project:active,
+.v-projects-page > .-projects > .-project:focus{
+	opacity: 1;
+	outline: 1px solid var(--m-grey-400);
 }
 .v-projects-page > .-projects > .-project + .-project{
 	margin-left: 3em;

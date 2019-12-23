@@ -8,16 +8,21 @@
 			</div>
 
 
-			<div class="-commit-summary" v-if="!$states.is('loading')">
+			<div class="-empty" v-if="!$states.is('loading') && files && !files.length">
+				<span class="-no files">No files changed</span>
+			</div>
+
+
+			<div class="-commit-summary" v-if="!$states.is('loading') && files && files.length">
 				<span class="-staged">{{ count_unstaged==0&&count_staged>0?'All ':'' }}<span class="-qty">{{ count_staged }}</span> file{{ count_staged==1?'':'s' }} on commit</span>
 				<span class="-unstaged" v-if="count_unstaged > 0">{{ count_staged==0&&count_unstaged>0?'All ':'' }}<span class="-qty">{{ count_unstaged }}</span> file{{ count_unstaged==1?'':'s' }} unmarked</span>
 			</div>
 
 		</div>
 
-		<v-new-commit-form class="-new-commit" v-if="!$states.is('loading')" :project_vo="project_vo"></v-new-commit-form>
+		<v-new-commit-form class="-new-commit" v-if="!$states.is('loading') && files && files.length" :project_vo="project_vo"></v-new-commit-form>
 
-		<ul class="-files" v-if="!$states.is('loading')">
+		<ul class="-files" v-if="!$states.is('loading') && files && files.length">
 			<v-commit-diff-item class="-file" :file_change="file" :key="file.path" v-for="file in files_sorted"></v-commit-diff-item>
 		</ul>
 
@@ -164,6 +169,15 @@ export default {
 	align-items: center;
 	justify-content: center;
 	padding: 3em 0;
+}
+
+.v-commit-panel > .-header > .-empty{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 3em 0;
+	font-size: 14px;
 }
 
 .v-commit-panel > .-header > .-commit-summary{
