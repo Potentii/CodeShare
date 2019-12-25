@@ -29,7 +29,6 @@ export default class GitDiffParser{
 	 */
 	_newImpl(data){
 		return parseDiff(data).map(diff => {
-			console.log(diff);
 			const hunks = diff.chunks.map(chunk => {
 				const a_range = new DiffHunkRange(chunk.oldStart, chunk.oldLines);
 				const b_range = new DiffHunkRange(chunk.newStart, chunk.newLines);

@@ -12,6 +12,13 @@
 
 
 <script>
+import Account        from './account/account';
+import ProjectRoot    from './project/project-root';
+import Project        from './project/project';
+import ProjectDetails from './project/project-details';
+
+
+
 export default {
 
    name: 'v-app-section',
@@ -30,7 +37,7 @@ export default {
 		// await ProjectRoot.getInstance().delete({ _id: 'yyyy' });
 		// await ProjectRoot.getInstance().delete({ _id: 'yyyy2' });
 		// await ProjectRoot.getInstance().delete({ _id: 'yyyy3' });
-		// await ProjectRoot.getInstance().add(new Project('yyyy', 'Fake Repo', new ProjectDetails('D:\\Github\\FakeRepo', null, null)));
+		// await ProjectRoot.getInstance().add(new Project('yyyy', 'Fake Repo', new ProjectDetails('D:\\Github\\FakeRepo', null, new Account('Guilherme Reginaldo Ruella', 'potentii@gmail.com'))));
 		// await ProjectRoot.getInstance().add(new Project('yyyy2', 'Fake Repo 2', new ProjectDetails('D:\\Github\\FakeRepo', null, null)));
 		// await ProjectRoot.getInstance().add(new Project('yyyy3', 'Code Share', new ProjectDetails('C:\\Github\\Potentii\\CodeShare', null, null)));
 		// ------------------------------------------------

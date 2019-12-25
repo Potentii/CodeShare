@@ -16,6 +16,7 @@ export default class ProjectVO{
 		this.commits = commits;
 	}
 
+
 	get _id(){
 		return this.project?._id;
 	}
@@ -33,6 +34,19 @@ export default class ProjectVO{
 			this._git = new Git(this.project.details.location);
 
 		return this._git;
+	}
+
+
+	/**
+	 *
+	 * @returns {Account|null}
+	 */
+	get account(){
+		return this.project?.details?.account;
+	}
+
+	set account(account){
+		this.project.details.account = account;
 	}
 
 

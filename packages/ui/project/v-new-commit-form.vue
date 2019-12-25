@@ -1,7 +1,10 @@
 <template>
 	<form class="v-new-commit-form" @submit.prevent="onSubmit">
 
-		<textarea class="-input --thin-scroll" v-model="message" placeholder="New commit message" rows="3"></textarea>
+		<v-new-author-form class="-account-form" :project_vo="project_vo" v-if="!author && requesting_author" @created="author_onCreated($event)"></v-new-author-form>
+
+
+		<textarea class="-input --thin-scroll" v-model="message" :disabled="requesting_author || $states.is('committing')" placeholder="New commit message" rows="3"></textarea>
 
 
 		<div class="-actions">
@@ -13,6 +16,7 @@
 				text="Commit"
 				title="Commit the changes"
 				@click="mode = 'COMMIT'"
+				:disabled="requesting_author || $states.is('committing')"
 				capsule
 				uppercase>
 			</v-button>
@@ -26,6 +30,7 @@
 				title="Commit the changes and push to the server"
 				v-if="has_push_remotes"
 				@click="mode = 'COMMIT_N_PUSH'"
+				:disabled="requesting_author || $states.is('committing')"
 				capsule
 				uppercase>
 			</v-button>
@@ -38,8 +43,10 @@
 
 
 <script>
-import ProjectVO from './project-vo';
-import VButton   from '../@components/v-button';
+import ProjectVO      from './project-vo';
+import VButton        from '../@components/v-button';
+import CommitPerson   from '../git/commit-person';
+import VNewAuthorForm from './v-new-author-form';
 
 
 
@@ -48,7 +55,7 @@ export default {
 	name: 'v-new-commit-form',
 
 
-	components: { VButton },
+	components: { VNewAuthorForm, VButton },
 
 
 	props: {
@@ -66,6 +73,7 @@ export default {
 		return {
 			mode: null,
 			message: '',
+			requesting_author: false,
 		};
 	},
 
@@ -74,7 +82,11 @@ export default {
 
 		async has_push_remotes(){
 			return (await this.project_vo?.git.remote.getAll()).some(remote => remote.is_push);
-		}
+		},
+
+		author(){
+			return this.project_vo?.account;
+		},
 
 	},
 
@@ -82,7 +94,42 @@ export default {
 	methods: {
 
 		async onSubmit(){
-			console.log(this.mode);
+
+			if(!this.author){
+				this.requesting_author = true;
+				return;
+			}
+
+			this.$states.add('committing');
+			this.$states.remove('committed');
+			try{
+				switch(this.mode){
+				case 'COMMIT':
+					await this.doCommit(this.project_vo, this.message);
+					break;
+				case 'COMMIT_N_PUSH':
+
+					break;
+				}
+				this.$states.add('committed');
+			} catch(err){
+				console.error(err);
+			} finally{
+				this.$states.remove('committing');
+			}
+		},
+
+
+		async doCommit(project_vo, message){
+			const author = new CommitPerson(project_vo.account.name, project_vo.account.email, new Date());
+			await project_vo.git.commit(author, author, message);
+		},
+
+
+		async author_onCreated(account){
+			this.requesting_author = false;
+			this.project_vo.account = account;
+			await this.onSubmit();
 		}
 
 	},
@@ -117,6 +164,10 @@ export default {
 .v-new-commit-form > .-input:focus{
 	border-color: rgba(0,0,0,0.13);
 }
+.v-new-commit-form > .-account-form + .-input{
+	margin-top: 1em;
+}
+
 .v-new-commit-form > .-actions{
 	display: flex;
 	justify-content: flex-end;
