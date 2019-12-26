@@ -4,7 +4,7 @@
 			<router-link
 				class="-project"
 				:class="{ '--selected': selected_project_vo && selected_project_vo.id == project_vo.id }"
-				:to="{ name: 'project', params: { _project: project_vo.id } }"
+				:to="{ name: 'project-home', params: { _project: project_vo.id } }"
 				:key="project_vo.id"
 				v-for="project_vo in project_vos"
 				tag="button">

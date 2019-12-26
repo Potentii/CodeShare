@@ -1,6 +1,5 @@
 <template>
 	<button class="v-button"
-			  @click="$emit('click', $event)"
 			  :class="{
 			  		'--capsule': !!capsule,
 			  		'--round': !!round,
@@ -11,7 +10,11 @@
 			  		'--bold': !!bold,
 			  		'--italic': !!italic,
 			  		'--uppercase': !!uppercase,
-			  }">
+			  }"
+			  :type="type"
+			  :title="title"
+			  :disabled="disabled"
+			  @click="$emit('click', $event)">
 		<v-loading-spinner class="-loading" v-if="loading"></v-loading-spinner>
 		<i class="-icon material-icons" v-else-if="icon && !loading">{{ icon }}</i>
 		<span class="-text" v-if="text">{{ text }}</span>
@@ -45,9 +48,20 @@ export default {
 			required: false
 		},
 
+		'title': {
+			type: String,
+			required: false
+		},
+
 		'text': {
 			type: String,
 			required: false
+		},
+
+		'type': {
+			type: String,
+			required: false,
+			default: 'button'
 		},
 
 		'capsule': {
@@ -109,6 +123,12 @@ export default {
 			default: false
 		},
 
+		'disabled': {
+			type: Boolean,
+			required: false,
+			default: false
+		},
+
 	},
 
 
@@ -150,11 +170,12 @@ export default {
 	--var-padding-v:     var(--v-button--padding-v, 0.6em);
 	--var-padding-h:     var(--v-button--padding-h, 1.3em);
 	--var-bg:            var(--v-button--bg, transparent);
-	--var-bg--hover:     var(--v-button--bg--hover, rgba(0,0,0,0.15));
+	--var-bg--hover:     var(--v-button--bg--hover, rgba(0,0,0,0.08));
 	--var-fg:            var(--v-button--fg, var(--blank-fg--base));
 	--var-fg--hover:     var(--v-button--fg--hover, var(--var-fg));
 	--var-elems-margin:  var(--v-button--elems-margin, 1em);
-	--var-border-radius: var(--v-button--border-radius, 0px);
+	--var-border-radius: var(--v-button--border-radius, 30em);
+	--var-border-color:  var(--v-button--border-color, var(--m-grey-400));
 
 	display: flex;
 	flex-direction: row;
@@ -194,16 +215,15 @@ export default {
 
 	box-shadow: 0 0 0 1pt transparent;
 
-	background-color: var(--var-bg--hover);
-
-	transition: opacity, border, 0.2s ease;
+	transition: opacity, background-color, box-shadow, 0.2s ease;
 }
 .v-button:not(:disabled):hover::after,
 .v-button:not(:disabled):focus::after{
 	opacity: 1;
+	background-color: var(--var-bg--hover);
 }
 .v-button:not(:disabled):focus::after{
-	box-shadow: 0 0 0 1pt var(--m-grey-400);
+	box-shadow: 0 0 0 1pt var(--var-border-color);
 }
 .v-button:disabled{
 	cursor: default;
@@ -239,12 +259,9 @@ export default {
 	--var-border-radius: 50%;
 }
 
-.v-button.--outline{
-	border: 2px solid var(--var-fg);
-}
-.v-button.--outline:focus,
-.v-button.--outline:hover{
-	border: 2px solid var(--var-fg--hover);
+.v-button.--outline::after{
+	opacity: 1;
+	box-shadow: 0 0 0 1pt var(--var-border-color);
 }
 
 
@@ -260,7 +277,7 @@ export default {
 	transition: color 0.2s ease;
 	z-index: 2;
 }
-.v-button:hover > .-icon.material-icons{
+.v-button:not(:disabled):hover > .-icon.material-icons{
 	color: var(--var-fg--hover);
 }
 .v-button.--italic > .-icon.material-icons{

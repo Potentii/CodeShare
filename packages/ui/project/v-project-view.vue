@@ -24,6 +24,8 @@
 					class="-action -settings"
 					type="button"
 					icon="settings"
+					:disabled="$route.name == 'project-settings'"
+					@click="$router.push({ name: 'project-settings', params: { _project: selected_project_vo.id } })"
 					title="Project settings">
 				</v-button>
 
@@ -32,10 +34,10 @@
 		</header>
 
 
-		<div class="-content --thin-scroll">
-			<v-log-panel class="-log-panel" v-if="selected_project_vo" :project_vo="selected_project_vo"></v-log-panel>
-			<v-commit-panel class="-diff-panel" v-if="selected_project_vo" :project_vo="selected_project_vo"></v-commit-panel>
-		</div>
+		<router-view class="-route --thin-scroll">
+<!--			<v-log-panel class="-log-panel" v-if="selected_project_vo" :project_vo="selected_project_vo"></v-log-panel>-->
+<!--			<v-commit-panel class="-diff-panel" v-if="selected_project_vo" :project_vo="selected_project_vo"></v-commit-panel>-->
+		</router-view>
 
 	</div>
 </template>
@@ -73,7 +75,7 @@ export default {
 
 				// *Loading the first project, if none were provided or found:
 				if((!_project && this.project_vos?.length) || (!project && this.project_vos?.length)){
-					this.$router.replace({ name: 'project', params: { _project: this.project_vos[0].id } });
+					this.$router.replace({ name: 'project-home', params: { _project: this.project_vos[0].id } });
 					return;
 				}
 
@@ -81,6 +83,14 @@ export default {
 			},
 			immediate: true
 		}
+	},
+
+
+	beforeRouteEnter(to, from, next){
+		if(to.name=='project')
+			next({ name: 'project-home' });
+		else
+			next();
 	},
 
 
@@ -99,8 +109,6 @@ export default {
 	flex-direction: column;
 	align-items: stretch;
 
-	padding: 2em var(--side-margins) 5em var(--side-margins);
-
 	overflow-y: auto;
 }
 
@@ -108,11 +116,12 @@ export default {
 	display: grid;
 	align-items: center;
 
-	/*padding: 0.8em 0;*/
 	grid-template-columns: auto 1fr auto;
 	grid-template-rows: auto;
 	grid-template-areas:
 		'name-area ... actions';
+
+	padding: 2em var(--side-margins) 0.6em var(--side-margins);
 }
 .v-project-view > .-header > .-name-area{
 	grid-area: name-area;
@@ -162,20 +171,34 @@ export default {
 .v-project-view > .-header > .-actions > .-action + .-action{
 	margin-left: 1.5em;
 }
+/*.v-project-view > .-header > .-actions > .-action::before{*/
+/*	opacity: 0;*/
+/*	content: '';*/
+/*	position: absolute;*/
+/*	left: 0;*/
+/*	bottom: 0;*/
+/*	width: 100%;*/
+/*	height: 3px;*/
+/*	transform: scaleX(0.9);*/
+/*	background-color: var(--accent-bg--base);*/
+/*	transition: opacity 0.15s ease-out;*/
+/*}*/
+/*.v-project-view > .-header > .-actions > .-action.--selected::before{*/
+/*	opacity: 1;*/
+/*}*/
 
 
-.v-project-view > .-content{
-	display: flex;
-	margin-top: 1.2em;
-}
-.v-project-view > .-content > .-log-panel + .-diff-panel{
-	margin-left: 2.5em;
-}
-.v-project-view > .-content > .-log-panel{
-	flex: 1 1 auto;
-}
-.v-project-view > .-content > .-diff-panel{
-	flex: 0 0 auto;
-	width: 40%;
-}
+/*.v-project-view > .-route{*/
+/*	margin-top: 1.2em;*/
+/*}*/
+/*.v-project-view > .-content > .-log-panel + .-diff-panel{*/
+/*	margin-left: 2.5em;*/
+/*}*/
+/*.v-project-view > .-content > .-log-panel{*/
+/*	flex: 1 1 auto;*/
+/*}*/
+/*.v-project-view > .-content > .-diff-panel{*/
+/*	flex: 0 0 auto;*/
+/*	width: 40%;*/
+/*}*/
 </style>
