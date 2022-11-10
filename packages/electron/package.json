@@ -14,7 +14,7 @@
 		"@babel/runtime": "7.2.0",
 		"@potentii/app-data": "1.0.1",
 		"dotenv": "8.0.0",
-		"electron": "7.1.4",
+		"electron": "18.3.7",
 		"electron-context-menu": "0.15.1",
 		"electron-debug": "3.0.1",
 		"electron-store": "5.1.0",
